@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#6d28d9">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="پنل DTF">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<title>محاسبه قیمت DTF</title>
+<style>
+:root{--bg:#f1f4f9;--card:#fff;--tx:#1e293b;--mu:#64748b;--pr:#6d28d9;--ac:#0ea5e9;--ok:#16a34a;--bd:#9aa6b8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Tahoma,"Segoe UI",sans-serif;padding:16px}
+.app{display:flex;gap:16px;max-width:1280px;margin:auto;align-items:flex-start}
+.main{flex:1;min-width:0}
+.side{width:230px;position:sticky;top:12px;background:#fff;border-radius:16px;padding:14px;box-shadow:0 2px 8px #0001}
+.side .logo{text-align:center;font-size:15px;font-weight:bold;color:var(--pr);margin-bottom:10px}
+.side .tab{width:100%;display:block;text-align:right;margin-bottom:6px;box-shadow:none;background:#f5f3ff;padding:10px 12px}
+.side .tab.on{background:var(--pr)}
+#clk{background:linear-gradient(135deg,#6d28d9,#0ea5e9);color:#fff;border-radius:12px;padding:12px;text-align:center;margin-bottom:12px}
+#clk .tm{font-size:24px;font-weight:bold;letter-spacing:1px}#clk .dt{font-size:12px;margin-top:4px}
+.phead{display:none;border-bottom:3px solid var(--pr);padding-bottom:8px;margin-bottom:12px;font-size:14px}
+.gd h3{margin:14px 0 6px;font-size:14px;color:var(--pr)}.gd p,.gd li{font-size:13px;line-height:2}
+@media(max-width:820px){.app{flex-direction:column}.side{width:100%;position:static}}
+@media print{body{background:#fff;padding:0}.side,header,.noprint,.btn,.dl{display:none!important}.pg:not(.on){display:none!important}#invapp .bar{display:none!important}.card{box-shadow:none}.phead{display:block!important}body[data-pr=p4] #p4>.card{display:none}.f input{border:0;background:none}}
+header{background:linear-gradient(135deg,#6d28d9,#0ea5e9);color:#fff;border-radius:16px;padding:18px 22px;display:flex;align-items:center;gap:14px;margin-bottom:16px}
+header .ic{font-size:36px}header h1{margin:0;font-size:20px}header p{margin:4px 0 0;font-size:12px;opacity:.9}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 2px 8px #0001;margin-bottom:16px}
+.card h2{margin:0 0 12px;font-size:15px;color:var(--pr);display:flex;gap:8px;align-items:center}
+.f{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.f label{flex:1;font-size:13px}.f label small{display:block;color:var(--mu);font-size:11px}
+.f input{width:140px;padding:8px;border:1px solid var(--bd);border-radius:8px;font-size:14px;text-align:center;font-family:inherit;direction:ltr}
+.f input:focus{outline:2px solid var(--pr);border-color:transparent}
+.u{font-size:11px;color:var(--mu);width:48px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td{padding:8px 4px;border-bottom:1px dashed var(--bd)}td:last-child{text-align:left;font-weight:bold}
+tr.t td{border-bottom:2px solid var(--bd);color:var(--pr);font-size:14px}
+.final{background:linear-gradient(135deg,#16a34a,#0ea5e9);color:#fff;border-radius:14px;padding:16px;text-align:center}
+.final .big{font-size:28px;font-weight:bold;margin:6px 0}
+.final .row{display:flex;justify-content:space-around;font-size:13px;margin-top:8px;gap:8px;flex-wrap:wrap}
+.btn{background:var(--pr);color:#fff;border:0;border-radius:8px;padding:8px 14px;font-family:inherit;cursor:pointer;font-size:12px}
+
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{flex:1;min-width:110px;background:#fff;border:0;border-radius:12px;padding:11px;font-family:inherit;font-size:14px;cursor:pointer;box-shadow:0 2px 6px #0001}
+.tab.on{background:var(--pr);color:#fff}
+.pg{display:none}.pg.on{display:block}
+.sel,.txt{padding:8px;border:1px solid var(--bd);border-radius:8px;font-family:inherit;font-size:13px;width:100%}
+.stk{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.sc{border:1px solid var(--bd);border-radius:12px;padding:12px;text-align:center}
+.sc .e{font-size:28px}.sc .v{font-size:20px;font-weight:bold;margin:4px 0}.neg{color:#dc2626}
+.dl{background:#dc2626;padding:4px 8px}.gr{background:var(--ok)}
+.lst{border-collapse:collapse}.lst td,.lst th{padding:7px 4px;font-size:12px;border:1px solid var(--bd);text-align:center}
+.lst input{width:80px;padding:5px;border:1px solid var(--bd);border-radius:6px;text-align:center;direction:ltr;font-family:inherit}
+#inv{background:#fff;padding:24px;border-radius:6px;border:1px solid var(--bd);width:100%}
+#inv .hd{display:flex;justify-content:space-between;border-bottom:3px solid var(--pr);padding-bottom:10px;margin-bottom:12px}
+#inv table td,#inv table th{padding:8px 5px;border-bottom:1px solid var(--bd);text-align:center;font-size:13px}
+#inv th{background:#f5f3ff;color:var(--pr)}
+#invapp{--navy:#1d2438;--red:#c8102e;--ink:#1d2438;--line:#8b93a7;--muted:#8a91a3;--cell:#fff;--zebra:#f6f7fa;--card:#fff;font-family:Vazirmatn,Tahoma,sans-serif;color:#1d2438}
+#invapp input{box-shadow:none}
+#invapp .wrap{max-width:820px;margin:0 auto}
+#invapp .bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+#invapp .bar button{flex:1;min-width:110px;border:0;border-radius:10px;padding:10px;color:#fff;font:600 13px Vazirmatn,Tahoma;cursor:pointer}
+#invapp .b1{background:var(--navy)}
+#invapp .b2{background:#12796e}
+#invapp .b3{background:#1f8a3b}
+#invapp .b4{background:var(--red)}
+#invapp .icard{background:var(--card);border-radius:18px;padding:20px;border:1px solid #e2e5ec;box-shadow:0 2px 12px #0001}
+#invapp h1{text-align:center;font-size:24px;margin:4px 0 6px;font-weight:800}
+#invapp h1 b{color:var(--red)}
+#invapp .rule{width:220px;margin:0 auto 20px;height:3px;background:linear-gradient(90deg,var(--navy) 35%,var(--red) 35% 65%,var(--navy) 65%)}
+#invapp .top{display:grid;grid-template-columns:1fr 170px;gap:12px;margin-bottom:18px}
+#invapp .box{border:2px solid var(--navy);border-radius:14px;overflow:hidden}
+#invapp .fld{display:flex;align-items:center;gap:10px;padding:10px 12px}
+#invapp .tag{background:var(--red);color:#fff;font-weight:800;font-size:13px;padding:8px 14px;min-width:96px;text-align:center;clip-path:polygon(0 0,100% 0,100% 100%,12% 100%,0 60%)}
+#invapp input{font:inherit;color:var(--ink);background:transparent;border:0;border-bottom:1px dotted var(--muted);outline:0;width:100%;padding:6px 4px;text-align:center}
+#invapp input:focus{border-bottom:1px solid var(--red)}
+#invapp .dt{background:var(--navy);color:#fff;text-align:center;font-weight:800;padding:8px}
+#invapp .dt+div{padding:10px}
+#invapp .dt2{margin-top:2px}
+#invapp .tblbox{border:2px solid var(--red);border-radius:14px;overflow:hidden;margin-bottom:16px}
+#invapp .tblbox>h2{background:var(--red);color:#fff;margin:0;text-align:center;font-size:16px;padding:9px}
+#invapp .scroll{overflow-x:auto}
+#invapp table{border-collapse:collapse;width:100%;min-width:560px}
+#invapp th{background:var(--navy);color:#fff;font-size:12px;padding:10px 6px;border:1px solid #3a4260}
+#invapp td{border:1px solid var(--line);padding:0;background:var(--cell);height:44px;text-align:center;font-size:14px}
+#invapp tbody tr:nth-child(even) td{background:var(--zebra)}
+#invapp td.n{font-weight:800;width:50px;position:relative}
+#invapp td.calc{font-weight:600;width:70px}
+#invapp .del{position:absolute;top:1px;right:1px;border:0;background:none;color:var(--muted);cursor:pointer;font-size:12px}
+#invapp .strip{display:flex;align-items:stretch;border:2px solid var(--red);border-radius:14px;overflow:hidden;margin-bottom:14px;background:var(--cell)}
+#invapp .strip .lab{background:var(--red);color:#fff;font-weight:800;padding:14px 22px;display:flex;align-items:center;white-space:nowrap}
+#invapp .strip.fin{margin-top:14px;margin-bottom:0}
+#invapp .strip .val{flex:1;padding:8px 14px;display:flex;align-items:center;justify-content:center;gap:16px;font-weight:600;flex-wrap:wrap}
+#invapp .words{color:var(--ink)}
+#invapp .words.empty{color:var(--muted)}
+#invapp .foot{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+#invapp .mini{border:2px solid var(--navy);border-radius:14px;overflow:hidden;text-align:center;background:var(--cell)}
+#invapp .mini .h{background:var(--navy);color:#fff;font-weight:800;font-size:13px;padding:9px 4px}
+#invapp .mini.hot{border-color:var(--red)}
+#invapp .mini.hot .h{background:var(--red)}
+#invapp .mini .v{padding:10px 6px;font-weight:800;font-size:16px;min-height:46px;display:flex;align-items:center;justify-content:center}
+#invapp .mini input{font-weight:800;font-size:16px}
+#invapp .mini .pv{flex-direction:column;gap:8px}
+#invapp .pr{display:flex;align-items:center;gap:6px;width:100%}
+#invapp .disc{background:#fde7f3;color:#c2185b;border-radius:10px;padding:6px 10px;font-size:13px;font-weight:800}
+#invapp .mono .disc{background:#fff!important;border:1.5px solid #000;border-radius:6px}
+#invapp .tiers{margin-top:16px;border-radius:14px;background:var(--navy);padding:14px;color:#fff}
+#invapp .tiers h3{margin:0 0 10px;text-align:center;font-size:16px}
+#invapp .tr{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;font-size:13px;font-weight:600}
+#invapp .tr span{padding:8px 12px;border-radius:8px}
+#invapp .tr .a{background:#2a3a6d}
+#invapp .tr .p{background:#f6c445;color:#1d2438;font-weight:800;text-align:center}
+#invapp .tr.on .a{outline:2px solid #f6c445}
+#invapp .tr .s{background:linear-gradient(90deg,#e91e8c,#ff6a3d);grid-column:1/-1;text-align:center}
+@media(max-width:560px){#invapp .top{grid-template-columns:1fr}#invapp .foot{grid-template-columns:1fr}#invapp .strip .lab{padding:12px}}
+#invapp .mono,#invapp .mono .icard{background:#fff!important;color:#000!important;box-shadow:none!important}
+#invapp .mono .icard{border:0!important}
+#invapp .mono *{color:#000!important;border-color:#000!important}
+#invapp .mono h1 b{color:#000!important}
+#invapp .mono .rule{background:#000!important;height:2px}
+#invapp .mono .tag,#invapp .mono .dt,#invapp .mono th,#invapp .mono .lab,#invapp .mono .mini .h,#invapp .mono .tblbox>h2,#invapp .mono .tiers,#invapp .mono .tr span,#invapp .mono .mini.hot .h{background:#fff!important;clip-path:none!important}
+#invapp .mono .tblbox>h2,#invapp .mono .dt,#invapp .mono .mini .h,#invapp .mono .lab{border-bottom:2px solid #000}
+#invapp .mono .lab{border-bottom:0;border-left:2px solid #000}
+#invapp .mono .tag{border:1.5px solid #000;border-radius:6px}
+#invapp .mono .box,#invapp .mono .tblbox,#invapp .mono .strip,#invapp .mono .mini,#invapp .mono .tiers{border:2px solid #000!important}
+#invapp .mono th{border:1px solid #000!important;font-weight:800}
+#invapp .mono td{border:1px solid #000!important;background:#fff!important}
+#invapp .mono tbody tr:nth-child(even) td{background:#fff!important}
+#invapp .mono .tiers h3{border-bottom:2px solid #000;padding-bottom:8px}
+#invapp .mono .tr span{border:1px solid #000;border-radius:0}
+#invapp .mono .tr.on .a{outline:0;font-weight:800;text-decoration:underline}
+#invapp .mono input{border-bottom:1px dotted #000!important}
+#invapp .mono .del{display:none}
+
+.side .bk{display:flex;gap:6px;margin-top:10px}.side .bk .btn{flex:1;padding:9px 4px}
+#oa{background:#fff;border:2px solid #1d2438;border-radius:12px;padding:22px;margin-top:6px}
+#oa .oh{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #c8102e;padding-bottom:10px;margin-bottom:12px}
+#oa .ob{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;font-size:13px;margin-bottom:12px}
+#oa .ob div b{color:#6d28d9}
+#oa img{max-width:100%;max-height:520px;display:block;margin:10px auto;border:1px solid #8b93a7;border-radius:8px}
+#oa .sg{display:flex;justify-content:space-between;margin-top:18px;font-size:13px;border-top:1px dashed #94a3b8;padding-top:12px}
+.thm{width:46px;height:46px;object-fit:cover;border-radius:6px;vertical-align:middle}
+@media print{#p8>.card{display:none}}
+
+.pe-tmp{display:none}
+@page{margin:12mm}@media print{.pe-tmp td{font-weight:normal}.pe-hide{display:none!important}.pe-tmp.pe-on{display:block!important;direction:rtl;font-family:Tahoma,sans-serif;color:#000}
+.pe-tmp td,.pe-tmp th{border:1px solid #000;padding:8px;text-align:center;font-size:13px}.pe-tmp table{width:100%;border-collapse:collapse;margin-bottom:16px}
+table{border-collapse:collapse!important}table th,table td{border:1px solid #000!important;color:#000}table th{background:#e8e8e8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+#invapp{--line:#000}#oa img{border-color:#000}}
+
+.lg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.lc{border:1px solid var(--bd);border-radius:12px;padding:8px;background:#fff}
+.lc img{width:100%;height:150px;object-fit:contain;background:#f8fafc;border-radius:8px}
+.lc input,.lc select{width:100%;margin:3px 0;padding:5px;border:1px solid var(--bd);border-radius:6px;font-family:inherit;font-size:12px}
+.hk{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:10px;text-align:center;cursor:pointer}
+.hk .v{font-size:22px;font-weight:bold;margin:4px 0}.td{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--bd);border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:13px;background:#fff}
+
+.lg{display:block;column-width:210px;column-gap:12px}
+.lc{display:inline-block;width:100%;break-inside:avoid;margin:0 0 12px;padding:8px;border:1px solid var(--bd);border-radius:14px;background:#fff;box-shadow:0 1px 4px #0001}
+.lc img{width:100%;height:auto;display:block;border-radius:10px;cursor:zoom-in;background:#f8fafc}
+.lc .lt{margin:6px 0 2px;font-size:13px}.lc .lm{font-size:11px;color:#64748b;margin:2px 0}.lc .la{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:11px}
+.lcode{background:#ede9fe;color:#6d28d9;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:bold}
+.chip{display:inline-block;padding:5px 12px;margin:3px;border:1px solid var(--bd);border-radius:20px;cursor:pointer;font-size:12px;background:#fff}.chip.on{background:var(--pr);color:#fff;border-color:var(--pr)}
+body.cvm .side,body.cvm header{display:none!important}body.cvm .lib-admin{display:none!important}body.cvm .lg{column-width:260px}body.cvm .lc{padding:10px}body.cvm .lc .lt{font-size:15px}
+#lb_md{display:none;position:fixed;inset:0;background:#0009;z-index:60;overflow:auto}#lb_vw{display:none;position:fixed;inset:0;background:#000e;z-index:70;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:16px}
+#lb_vw img{max-width:92vw;max-height:72vh;object-fit:contain;border-radius:8px}
+@media print{#lb_md,#lb_vw{display:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side"><div class="logo" style="cursor:pointer" onclick="document.querySelector('[data-p=p12]').click()" title="صفحه اصلی">🖨️ پنل DTF</div>
+<div id="clk"><div class="tm" id="ck_t"></div><div class="dt" id="ck_d"></div></div>
+<div style="background:#ecfdf5;border:1px solid #16a34a;border-radius:12px;padding:10px;margin-bottom:12px"><div style="font-size:12px;font-weight:bold;color:#166534">💵 نرخ دلار امروز (تومان)</div><input id="usd" type="number" value="100000" style="width:100%;margin-top:6px;padding:8px;border:1px solid #9aa6b8;border-radius:8px;text-align:center;direction:ltr;font-size:15px;font-family:inherit"><div id="usd_s" style="font-size:11px;margin-top:5px"></div></div>
+<button class="tab on" data-p="p12">🏠 صفحه اصلی</button><button class="tab" data-p="p7">👥 مشتریان</button><button class="tab" data-p="p8">📝 ثبت سفارش</button><button class="tab" data-p="p13">📚 کتابخانه طرح</button><button class="tab" data-p="p1">🧮 محاسبه قیمت</button><button class="tab" data-p="p4">🧾 فاکتور مشتری</button><button class="tab" data-p="p9">🗂 بایگانی</button><button class="tab" data-p="p2">📦 انبار مواد</button><button class="tab" data-p="p3">🛒 خرید مواد</button><button class="tab" data-p="p5">📅 گزارش روزانه</button><button class="tab" data-p="p10">📈 گزارش ماهانه</button><button class="tab" data-p="p14">💹 سود و زیان</button><button class="tab" data-p="p6">❓ راهنما</button><button class="tab" data-p="p11">⚙️ ذخیره خودکار</button><div class="bk"><button class="btn" onclick="backup()">💾 ذخیره اطلاعات</button><button class="btn gr" onclick="$('rf').click()">📂 بازیابی</button></div><div id="ab_s" style="font-size:11px;color:#64748b;margin-top:8px;text-align:center"></div><input type="file" id="rf" accept=".json,application/json" hidden></aside>
+<div class="main"><div class="phead" id="phead"></div>
+<header><div class="ic">🖨️</div><div><h1>محاسبه قیمت تمام‌شده و قیمت نهایی DTF</h1><p>قیمت‌ها قابل ویرایش هستند و در مرورگر ذخیره می‌شوند</p></div></header>
+
+<div class="pg" id="p1">
+<div class="grid">
+<div>
+<div class="card"><h2>📥 مشتری و سفارش</h2>
+<div class="f"><label>۱) مشتری</label><select id="calc_cs" class="sel" style="width:230px"></select></div>
+<div class="f"><label>۲) سفارش<small>فقط سفارش‌های همان مشتری؛ با انتخاب، ارتفاع، تعداد و پیکسل پر می‌شود</small></label><select id="c_ord" class="sel" style="width:230px"></select></div>
+<p style="margin:6px 0 0"><button class="btn gr" onclick="fillCalc($('c_ord').value)">📥 پر کردن دوباره</button> <span id="c_info" style="font-size:12px;color:#166534"></span></p></div>
+<div class="card"><h2>🎨 مشخصات طرح</h2>
+<div class="f"><label>ارتفاع طرح<small>عرض ثابت ۵۸ سانتی‌متر</small></label><input id="h" type="number" value="30"><span class="u">سانتی‌متر</span></div>
+<div class="f"><label>مقدار پیکسل طرح<small>پیکسل کامل یک متر = <span id="fullpx"></span> (اگر خالی بماند، کل ارتفاع طرح پر فرض می‌شود)</small></label><input id="px" type="number" value="400000"><span class="u">پیکسل</span></div>
+<div class="f"><label>تعداد کپی</label><input id="n" type="number" value="10"><span class="u">عدد</span></div>
+</div>
+
+<div class="card"><h2>💰 قیمت مواد به دلار (قابل ویرایش — نرخ دلار در منوی کناری)</h2>
+<div class="f"><label>🤍 رنگ سفید<small>قیمت هر لیتر <b id="pw_t"></b></small></label><input id="pw" type="number" step="0.01" value="15"><span class="u">دلار</span></div>
+<div class="f"><label>🎞️ رول فیلم<small>قیمت کل رول ۱۰۰ متری <b id="pf_t"></b></small></label><input id="pf" type="number" step="0.01" value="45"><span class="u">دلار</span></div>
+<div class="f"><label>✨ پودر<small>قیمت هر کیلو <b id="pp_t"></b></small></label><input id="pp" type="number" step="0.01" value="6"><span class="u">دلار</span></div>
+</div>
+</div>
+
+<div>
+<div class="card"><h2>⚙️ ضرایب و مصرف</h2>
+<div class="f"><label>مصرف رنگ سفید<small>در یک متر کاملاً چاپی</small></label><input id="cw" type="number" value="30"><span class="u">میلی‌لیتر</span></div>
+<div class="f"><label>پیکسل کامل در متر</label><input id="fp" type="number" value="1265789"><span class="u">پیکسل</span></div>
+<div class="f"><label>مصرف پودر<small>در یک متر کاملاً چاپی (فرضی؛ ویرایش کنید)</small></label><input id="cp" type="number" value="25"><span class="u">گرم</span></div>
+<div class="f"><label>طول رول / عرض مفید</label><input id="rl" type="number" value="100" style="width:66px"><input id="rw" type="number" value="58" style="width:66px"><span class="u">م / سانت</span></div>
+<div class="f"><label>افزایش بابت جوهر رنگی<small>درصد از قیمت تمام‌شده</small></label><input id="pc" type="number" value="15"><span class="u">٪</span></div>
+<div class="f"><label>سود مورد نظر</label><input id="pr" type="number" value="40"><span class="u">٪</span></div>
+<button class="btn" onclick="resetAll()">↺ بازنشانی مقادیر</button>
+</div>
+
+<div class="card"><h2>📊 جزئیات محاسبه</h2>
+<table id="tb"></table></div>
+</div>
+</div>
+
+<div class="final" id="fin"></div>
+<p style="text-align:center"><button class="btn gr" onclick="saveToOrder()">💾 ثبت در سفارش</button> <button class="btn" style="background:#f59e0b" onclick="editCalcOrder()">✏️ ویرایش سفارش</button> <button class="btn dl" onclick="deleteCalcOrder()">🗑 حذف کامل سفارش</button> <button class="btn" style="background:#0ea5e9" onclick="saveCalc()">🗂 ثبت در بایگانی مشتری</button> <button class="btn" onclick="toInvoice()">🧾 افزودن به فاکتور</button></p>
+</div>
+
+<div class="pg" id="p2"><div class="card"><h2>📦 موجودی انبار مواد اولیه (قابل ویرایش) <span style="font-size:12px;color:#64748b;font-weight:normal">— امروز: <b id="inv_today"></b></span></h2>
+<div class="stk">
+<div class="sc"><div class="e">🤍</div><div>رنگ سفید</div><div class="v" id="s_white"></div><div class="f" style="justify-content:center"><input id="e_white" type="number" step="0.1"><span class="u">لیتر</span></div><div class="f" style="justify-content:center"><span class="u" style="width:auto">📅 تاریخ</span><input id="d_white" type="text" style="width:105px"></div></div>
+<div class="sc"><div class="e">🎞️</div><div>فیلم</div><div class="v" id="s_film"></div><div class="f" style="justify-content:center"><input id="e_film" type="number"><span class="u">متر</span></div><div class="f" style="justify-content:center"><span class="u" style="width:auto">📅 تاریخ</span><input id="d_film" type="text" style="width:105px"></div></div>
+<div class="sc"><div class="e">✨</div><div>پودر</div><div class="v" id="s_powder"></div><div class="f" style="justify-content:center"><input id="e_powder" type="number" step="0.1"><span class="u">کیلو</span></div><div class="f" style="justify-content:center"><span class="u" style="width:auto">📅 تاریخ</span><input id="d_powder" type="text" style="width:105px"></div></div>
+<div class="sc"><div class="e">🔵</div><div>جوهر آبی (C)</div><div class="v" id="s_cy"></div><div class="f" style="justify-content:center"><input id="e_cy" type="number" step="0.1"><span class="u">لیتر</span></div><div class="f" style="justify-content:center"><span class="u" style="width:auto">📅 تاریخ</span><input id="d_cy" type="text" style="width:105px"></div></div><div class="sc"><div class="e">🟣</div><div>جوهر سرخابی (M)</div><div class="v" id="s_mg"></div><div class="f" style="justify-content:center"><input id="e_mg" type="number" step="0.1"><span class="u">لیتر</span></div><div class="f" style="justify-content:center"><span class="u" style="width:auto">📅 تاریخ</span><input id="d_mg" type="text" style="width:105px"></div></div><div class="sc"><div class="e">🟡</div><div>جوهر زرد (Y)</div><div class="v" id="s_yl"></div><div class="f" style="justify-content:center"><input id="e_yl" type="number" step="0.1"><span class="u">لیتر</span></div><div class="f" style="justify-content:center"><span class="u" style="width:auto">📅 تاریخ</span><input id="d_yl" type="text" style="width:105px"></div></div><div class="sc"><div class="e">⚫</div><div>جوهر مشکی (K)</div><div class="v" id="s_bk"></div><div class="f" style="justify-content:center"><input id="e_bk" type="number" step="0.1"><span class="u">لیتر</span></div><div class="f" style="justify-content:center"><span class="u" style="width:auto">📅 تاریخ</span><input id="d_bk" type="text" style="width:105px"></div></div></div><p style="font-size:12px;color:var(--mu)">عدد داخل کادرها را مستقیم تغییر دهید (برای اصلاح موجودی یا شمارش انبار). خرید جدید و کسر مصرف خودکار اعمال می‌شود.</p></div></div>
+
+<div class="pg" id="p3">
+<div class="card noprint"><h2>📨 درخواست خرید جدید</h2>
+<div class="f"><label>ماده</label><select id="q_m" class="sel" style="width:200px"></select><input id="q_q" type="number" step="0.1" placeholder="مقدار" style="width:90px"><span class="u" id="q_u"></span><button class="btn" onclick="addDraft()">➕ افزودن به لیست</button></div>
+<table class="lst" style="width:100%;border-collapse:collapse"><thead><tr><th>ماده</th><th>مقدار</th><th></th></tr></thead><tbody id="q_l"></tbody></table>
+<div class="f" style="margin-top:10px"><label>توضیحات درخواست</label><input id="q_n" type="text" style="direction:rtl;width:260px"></div>
+<button class="btn" onclick="submitReq()">📨 ثبت درخواست خرید (منتظر خرید)</button></div>
+<div class="card"><h2>⏳ درخواست‌های منتظر خرید</h2><p class="noprint"><button class="btn" onclick="printReqs()">📄 خروجی جدول PDF (همه درخواست‌های منتظر)</button></p><div id="rq_p"></div></div>
+<div class="card"><h2>✅ درخواست‌های تکمیل‌شده</h2><div id="rq_d"></div></div><div class="card"><h2>🛒 خرید مستقیم (بدون درخواست) و سابقه خریدها</h2>
+<div class="grid"><div>
+<div class="f"><label>ماده</label><select id="b_m" class="sel"><option value="white">🤍 رنگ سفید (لیتر)</option><option value="film">🎞️ رول فیلم (تعداد رول)</option><option value="powder">✨ پودر (کیلو)</option></select></div>
+<div class="f"><label>مقدار</label><input id="b_q" type="number" step="0.1"></div>
+<div class="f"><label>قیمت واحد<small>هر لیتر / هر رول / هر کیلو (دلار؛ با نرخ دلار منوی کناری به تومان تبدیل می‌شود)</small></label><input id="b_p" type="number"></div></div><div>
+<div class="f"><label>تاریخ</label><input id="b_d" type="text" placeholder="۱۴۰۵/۰۸/۰۷"></div>
+<div class="f"><label>فروشنده</label><input id="b_s" type="text" style="direction:rtl"></div>
+<div class="f"><label><input type="checkbox" id="b_u" checked> قیمت محاسبه را به این قیمت تغییر بده</label></div>
+<button class="btn" onclick="addBuy()">➕ ثبت خرید و افزودن به انبار</button></div></div>
+<table class="lst" style="margin-top:14px"><thead><tr><th>تاریخ</th><th>ماده</th><th>مقدار</th><th>قیمت واحد (دلار)</th><th>قیمت واحد (تومان)</th><th>جمع (تومان)</th><th>فروشنده</th><th></th></tr></thead><tbody id="bl"></tbody></table>
+<p id="bt" style="font-weight:bold"></p></div></div>
+
+<div class="pg" id="p4">
+<div class="card noprint"><h2>🧾 فاکتور مشتری</h2><div class="f"><label>انتخاب مشتری ثبت‌شده<small>نام و کد در فاکتور پر می‌شود (مشتری جدید را در بخش مشتریان ثبت کنید)</small></label><select id="cs" class="sel" style="width:220px"></select></div>
+<div class="f"><label>پر کردن فاکتور از سفارش ثبت‌شده<small>مشتری و مشخصات طرح (ارتفاع، تعداد) از ثبت سفارش گرفته می‌شود</small></label><select id="f_ord" class="sel" style="width:260px"></select></div>
+<p><button class="btn gr" onclick="fillInv($('f_ord').value,false)">📥 پر کردن فاکتور از سفارش</button> <button class="btn" onclick="fillInv($('f_ord').value,true)">➕ افزودن سفارش به فاکتور</button> <button class="btn gr" onclick="fillInvGroup($('f_ord').value)">📥 پر کردن با همه طرح‌های این سفارش (گروه)</button> <span id="f_info" style="font-size:12px;color:#166534"></span> <button class="btn" style="background:#64748b" onclick="invNew()">🆕 فاکتور جدید</button></p><div id="f_edit"></div><div class="f" style="flex-wrap:wrap;margin-top:6px"><label style="flex-basis:100%"><b>💰 نحوه قیمت‌گذاری فاکتور</b><small>تعرفه خودکار بر اساس متراژ است؛ برای قیمت دلخواه یکی از حالت‌های دستی را بزنید</small></label>
+<label><input type="radio" name="pmode" id="pm_t" checked> تعرفه (خودکار)</label>
+<label><input type="radio" name="pmode" id="pm_m"> قیمت دستی هر متر (در خود فاکتور بنویسید)</label>
+<label>مبلغ کل دستی <small>اختیاری؛ خالی = محاسبه خودکار</small></label><input id="totov" inputmode="numeric" style="width:150px" placeholder="مبلغ کل (تومان)"></div>
+<div class="f" style="flex-wrap:wrap"><label style="flex-basis:100%"><b>🔥 هزینه پرس‌کاری</b><small>تعداد پرس × قیمت هر پرس را بنویسید تا در کادر «هزینه پرس‌کاری» فاکتور پر شود (مبلغ را مستقیم هم می‌توانید در فاکتور بنویسید)</small></label><input id="pr_n" inputmode="numeric" placeholder="تعداد پرس" style="width:110px"> <span>×</span> <input id="pr_p" inputmode="numeric" placeholder="قیمت هر پرس (تومان)" style="width:170px"></div>
+<details class="noprint" style="margin:6px 0"><summary style="cursor:pointer;font-size:13px">⚙️ ویرایش تعرفه‌ها (قیمت هر متر، تومان)</summary><div style="margin-top:8px;font-size:12px">
+<span style="margin-left:10px">کمتر از ۱ متر <input id="tf0" type="number" style="width:100px"></span><span style="margin-left:10px">۱ تا ۳ متر <input id="tf1" type="number" style="width:100px"></span><span style="margin-left:10px">۳ تا ۵ متر <input id="tf2" type="number" style="width:100px"></span><span>۵ متر و بیشتر <input id="tf3" type="number" style="width:100px"></span></div></details></div>
+<details class="card noprint" style="margin-bottom:16px"><summary style="cursor:pointer;font-weight:bold;color:var(--pr)">🧾 فاکتورهای ثبت‌شده (<span id="il_n">0</span>) — ویرایش و حذف</summary><table class="lst" style="width:100%;border-collapse:collapse;margin-top:10px"><thead><tr><th>تاریخ</th><th>شماره</th><th>مشتری</th><th>سفارش</th><th>متراژ</th><th>مبلغ (تومان)</th><th></th></tr></thead><tbody id="il2"></tbody></table></details>
+<div id="invapp"><div class="wrap" id="cap">
+  <div class="bar" data-html2canvas-ignore>
+    <button class="b1" style="background:#16a34a;color:#fff" onclick="regInv()">💾 ثبت فاکتور</button>
+    <button class="b1" onclick="addRow()">＋ افزودن ردیف</button>
+    <button class="b2" onclick="ishot()">اسکرین‌شات</button>
+    <button class="b3" onclick="xlsx()">خروجی اکسل</button>
+    <button class="b4" onclick="ipdf()">چاپ / PDF</button>
+  </div>
+  <div class="icard">
+    <h1><b>DTF</b> کنترل اجرای سفارشات</h1>
+    <div class="rule"></div>
+    <div class="top">
+      <div class="box">
+        <div class="fld"><span class="tag">نام مشتری</span><input id="cust" placeholder="مثلاً: ۱۰۲ - فروشگاه ..."></div>
+        <div class="fld"><span class="tag">کد طرح</span><input id="code" placeholder="مثلاً: DTF-..."></div>
+      </div>
+      <div class="box"><div class="dt">تاریخ فاکتور</div><div><input id="date"></div><div class="dt dt2">شماره فاکتور</div><div><input id="inv" inputmode="numeric" placeholder="..."></div></div>
+    </div>
+
+    <div class="tblbox">
+      <h2>متراژ هر طرح</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>ردیف</th><th>نام ذخیره شده</th><th>طول طرح (cm)</th><th>تعداد کپی</th><th>متر</th><th>سانتی‌متر</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+
+    <div class="strip"><div class="lab">جمع کل متراژ</div>
+      <div class="val"><span>متر: <b id="tm">۰</b></span><span>سانتی‌متر: <b id="tc">۰</b></span></div></div>
+    <div class="strip"><div class="lab">جمع کل متراژ به حروف</div>
+      <div class="val"><span id="words" class="words empty">محاسبه خودکار...</span></div></div>
+
+    <div class="foot">
+      <div class="mini"><div class="h">قیمت هر متر</div><div class="v pv"><div class="pr"><input id="ppm" inputmode="numeric" placeholder="تعرفه..."><span id="tmn" hidden>تومان</span></div><div class="disc" id="disc" hidden>🎉 شامل تخفیف ویژه</div></div></div>
+      <div class="mini"><div class="h">مبلغ کل (تومان)</div><div class="v" id="total">محاسبه...</div></div>
+      <div class="mini"><div class="h">هزینه طراحی</div><div class="v"><input id="design" inputmode="numeric" placeholder="تعرفه..."></div></div>
+      <div class="mini"><div class="h">هزینه پرس‌کاری</div><div class="v"><input id="press" inputmode="numeric" placeholder="مبلغ..."></div></div>
+    </div>
+    <div class="strip fin"><div class="lab">مبلغ نهایی فاکتور (تومان)</div><div class="val"><b id="final" style="font-size:20px">محاسبه...</b></div></div>
+
+  </div>
+</div></div></div>
+<div class="pg" id="p7"><div class="card"><h2>👥 مشتریان</h2>
+<div class="grid noprint"><div><div class="f"><label>کد مشتری<small>همان کد سیستم حسابداری</small></label><input id="k_c" type="text" style="width:180px;direction:ltr"></div><div class="f"><label>نام مشتری / فروشگاه</label><input id="k_n" type="text" style="direction:rtl;width:180px"></div><div class="f"><label>تلفن</label><input id="k_p" type="text" style="width:180px"></div></div>
+<div><div class="f"><label>آدرس / توضیحات</label><input id="k_a" type="text" style="direction:rtl;width:180px"></div><button class="btn" onclick="addCust()">➕ ثبت مشتری</button></div></div>
+<div class="f noprint" style="margin-top:12px"><label>جستجو</label><input id="k_s" type="text" style="direction:rtl;width:220px" placeholder="نام، کد یا تلفن"></div><p class="noprint" style="font-size:12px;color:var(--mu)">همه خانه‌های جدول (کد، نام، تلفن، آدرس) قابل ویرایش‌اند؛ با خروج از خانه، تغییر ذخیره می‌شود. با تغییر کد، سفارش‌ها و بایگانی آن مشتری هم به کد جدید منتقل می‌شوند.</p>
+<table class="lst" style="width:100%;border-collapse:collapse"><thead><tr><th>کد (قابل ویرایش)</th><th>نام</th><th>تلفن</th><th>آدرس / توضیحات</th><th>تعداد فاکتور</th><th>جمع فاکتورها</th><th class="noprint"></th></tr></thead><tbody id="kl"></tbody></table></div></div>
+<div class="pg" id="p8"><div class="card"><h2>📝 ثبت سفارش و تاییدیه مشتری</h2>
+<div class="grid"><div>
+<div class="f"><label>مشتری</label><select id="o_cs" class="sel" style="width:200px"></select></div>
+<div class="f"><label>عنوان سفارش</label><input id="o_t" type="text" style="direction:rtl;width:200px" placeholder="مثلاً: طرح تیشرت ..."></div>
+<div class="f"><label>ارتفاع طرح (سانتی‌متر)</label><input id="o_h" type="number"></div>
+<div class="f"><label>تعداد کپی</label><input id="o_n" type="number"></div>
+<div class="f"><label>پیکسل طرح<small>اختیاری؛ برای محاسبه مصرف رنگ</small></label><input id="o_px" type="number"></div></div><div>
+<div class="f"><label>تاریخ تحویل</label><input id="o_dv" type="text"></div>
+<div class="f"><label>توضیحات</label><input id="o_nt" type="text" style="direction:rtl;width:200px"></div>
+<div class="f"><label>عکس چیدمان</label><input id="o_img" type="file" accept="image/*" multiple style="width:200px"></div>
+<p style="font-size:11px;color:#64748b;margin:0 0 8px">برای چند طرح: چند عکس را یک‌جا انتخاب کنید، یا هر طرح را پر کنید و «➕ افزودن طرح دیگر» بزنید.</p>
+<p><button class="btn" onclick="saveOrder()">✅ ثبت سفارش</button> <button class="btn" style="background:#0ea5e9" onclick="addDraftO()">➕ افزودن طرح دیگر به این سفارش</button> <button class="btn" style="background:#64748b" onclick="newOrder()">✨ سفارش جدید</button></p></div></div><div id="o_dr"></div></div>
+<div class="card"><h2>📋 سفارش‌های ثبت‌شده</h2><div id="o_sum"></div><p class="noprint" style="font-size:12px;margin:4px 0"><label><input type="checkbox" id="o_arch" style="width:auto" onchange="showArch=this.checked;renderOL()"> نمایش سفارش‌های تکمیل‌شده <span id="o_archn"></span></label> <small style="color:#64748b">— سفارش تکمیل‌شده (چاپ‌شده و فاکتورشده) به بایگانی مشتری می‌رود و از این لیست خارج می‌شود.</small></p><table class="lst" style="width:100%;border-collapse:collapse"><thead><tr><th>شماره</th><th>تاریخ</th><th>مشتری</th><th>عنوان</th><th>چیدمان</th><th>متراژ (متر)</th><th>قیمت نهایی (تومان)</th><th>وضعیت</th><th></th></tr></thead><tbody id="ol"></tbody></table></div>
+<p class="noprint"><button class="btn gr" onclick="oShot()">📸 اسکرین‌شات برای تایید مشتری</button></p>
+<div id="oa"></div></div>
+<div class="pg" id="p9"><div class="card noprint"><h2>🗂 بایگانی مشتری</h2><div class="f"><label>مشتری</label><select id="a_cs" class="sel" style="width:240px"></select></div></div>
+<div class="card" id="ar"></div></div>
+<div class="pg" id="p10"><div class="card noprint"><h2>📈 گزارش ماهانه</h2><div class="f"><label>نوع نمودار</label><select id="m_v" class="sel" style="width:200px"><option value="d">روزهای یک ماه</option><option value="y">ماه‌های یک سال</option></select></div>
+<div class="f"><label>سال / ماه</label><input id="m_y" type="text" style="width:80px"><select id="m_m" class="sel" style="width:120px"></select></div></div>
+<div class="card" id="mr"></div></div>
+<div class="pg" id="p11"><div class="card"><h2>⚙️ تنظیمات ذخیره خودکار</h2>
+<div id="ab_perm" class="noprint" style="display:none;background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:10px;margin-bottom:12px;font-size:13px">🔓 برای ذخیره در پوشه، مرورگر در هر بار باز کردن برنامه یک تایید می‌خواهد. <button class="btn" onclick="runBackup(true)">فعال‌سازی ذخیره در پوشه</button></div>
+<div class="f"><label><input type="checkbox" id="ab_on"> ذخیره خودکار فعال باشد</label></div>
+<div class="f"><label>هر چند دقیقه یک بار<small>فقط اگر تغییری در اطلاعات داده شده باشد</small></label><select id="ab_ev" class="sel" style="width:140px"><option value="1">۱ دقیقه</option><option value="5">۵ دقیقه</option><option value="15">۱۵ دقیقه</option><option value="30">۳۰ دقیقه</option><option value="60">۱ ساعت</option><option value="180">۳ ساعت</option></select></div>
+<div class="f"><label>تعداد نسخه‌های نگهداری‌شده در مرورگر<small>قدیمی‌ترین‌ها خودکار حذف می‌شوند</small></label><select id="ab_keep" class="sel" style="width:140px"><option value="5">۵ نسخه</option><option value="10">۱۰ نسخه</option><option value="20">۲۰ نسخه</option><option value="30">۳۰ نسخه</option></select></div>
+<h3 style="color:var(--pr);font-size:14px">📁 ذخیره در پوشه کامپیوتر</h3>
+<p style="font-size:12px;color:var(--mu)" id="ab_fs"></p>
+<p><button class="btn" onclick="abPick()">📁 انتخاب پوشه ذخیره</button> <button class="btn dl" onclick="abUnpick()">✖ حذف پوشه</button></p>
+<div class="f"><label><input type="checkbox" id="ab_dl"> اگر پوشه‌ای انتخاب نشده بود، فایل پشتیبان را خودکار دانلود کن (حداکثر روزی یک بار)</label></div>
+<p><button class="btn gr" onclick="runBackup(true)">💾 ذخیره همین حالا</button> <span style="font-size:13px">آخرین ذخیره: <b id="ab_last"></b></span></p></div>
+<div class="card"><h2>🕘 نسخه‌های ذخیره‌شده در مرورگر</h2><table class="lst" style="width:100%;border-collapse:collapse"><thead><tr><th>تاریخ و ساعت</th><th>حجم</th><th></th></tr></thead><tbody id="ab_l"></tbody></table></div></div>
+<div class="pg on" id="p12"><div id="hm"></div></div>
+<div class="pg" id="p13"><div class="card" id="lb_top">
+<h2 style="justify-content:space-between"><span>📚 کتابخانه طرح</span><button class="btn dl" id="lb_exit" style="display:none" onclick="libCust(false)">↩️ خروج از نمایش مشتری</button></h2>
+<div class="f"><label>جستجو<small>عنوان، کد یا برچسب</small></label><input id="lb_q" type="text" style="width:260px;direction:rtl" placeholder="مثلاً: گل"></div>
+<div id="lb_chips" style="margin:8px 0"></div>
+<div class="lib-admin noprint">
+<div class="f"><label>افزودن طرح<small>چند عکس را یک‌جا انتخاب کنید (psd و tif هم ذخیره می‌شود)</small></label><input id="lb_up" type="file" accept="image/*,.psd,.tif,.tiff,.pdf" multiple style="width:240px"></div>
+<div class="f"><label>مشتری طرح‌های جدید<small>اختیاری</small></label><select id="lb_ucs" class="sel" style="width:220px"></select></div>
+<div class="f"><label>فیلتر مشتری</label><select id="lb_fc" class="sel" style="width:220px"></select></div>
+<p><button class="btn" style="background:#0ea5e9" onclick="libCust(true)">📺 نمایش برای مشتری</button> <button class="btn" onclick="libCatalog()">📄 کاتالوگ PDF</button> <button class="btn" style="background:#64748b" onclick="libPickDir()">📁 انتخاب پوشه دانلود</button> <span id="lb_dir" style="font-size:12px;color:#64748b"></span></p></div>
+<p id="lb_n" style="font-size:12px;color:var(--mu)"></p></div>
+<div id="lb_g" class="lg"></div>
+<div id="lb_md"></div>
+<div id="lb_vw"></div></div>
+<div class="pg" id="p14"><div class="card noprint"><h2>💹 سود و زیان</h2>
+<div class="f"><label>بازه</label><select id="pl_v" class="sel" style="width:170px"><option value="m">یک ماه</option><option value="y">یک سال</option><option value="a">همه زمان‌ها</option></select></div>
+<div class="f"><label>سال / ماه</label><input id="pl_y" type="text" style="width:80px"><select id="pl_m" class="sel" style="width:120px"></select></div></div>
+<div class="card" id="plr"></div></div>
+<div class="pg" id="p5"><div class="card"><h2>📅 گزارش روزانه</h2>
+<div class="f noprint"><label>تاریخ شمسی<small>مثال: ۱۴۰۵/۰۸/۰۷</small></label><input id="r_d" type="text" style="width:120px"><button class="btn" onclick="$('r_d').value=jkey(Date.now());renderRep();wrLoad();renderWork()">امروز</button></div>
+<div id="wr"></div>
+<div id="df" style="border:2px solid #dc2626;border-radius:12px;padding:12px;margin-bottom:14px"><h3 style="margin:0 0 6px;color:#dc2626">⚠️ ضایعات و چاپ خراب <span id="df_d0" style="font-size:12px"></span></h3>
+<p style="font-size:12px;color:#64748b;margin:0 0 8px">اگر چاپی اشتباه یا خراب شد اینجا ثبت کنید. مصرف آن از انبار کسر می‌شود و در سفارش، گزارش روزانه و ماهانه و بایگانی مشتری نوشته می‌شود.</p>
+<div id="df_l"></div>
+<p class="noprint"><button class="btn" style="background:#dc2626" onclick="dfOpen()">➕ ثبت چاپ خراب / اشتباه</button></p>
+<div id="df_f" class="noprint" style="display:none;background:#fef2f2;border-radius:10px;padding:10px">
+<div class="f"><label>سفارش<small>اختیاری</small></label><select id="df_o" class="sel" style="width:240px" onchange="dfFill()"></select></div>
+<div class="f"><label>تاریخ</label><input id="df_d" type="text" style="width:120px"></div>
+<div class="f"><label>ارتفاع خراب</label><input id="df_h" type="number"><span class="u">سانتی‌متر</span></div>
+<div class="f"><label>تعداد کپی خراب</label><input id="df_n" type="number"><span class="u">عدد</span></div>
+<div class="f"><label>پیکسل طرح<small>اختیاری؛ خالی = کل ارتفاع پر</small></label><input id="df_px" type="number"></div>
+<div class="f"><label>علت</label><select id="df_r" class="sel" style="width:240px"><option>خطای دستگاه / چاپ</option><option>رنگ یا رنگ‌بندی اشتباه</option><option>چیدمان یا ابعاد اشتباه</option><option>مشکل فیلم یا پودر</option><option>اشتباه اپراتور</option><option>سایر</option></select></div>
+<div class="f"><label>توضیحات</label><input id="df_nt" type="text" style="direction:rtl;width:240px"></div>
+<div class="f"><label><input type="checkbox" id="df_re" checked> نیاز به چاپ مجدد (وضعیت سفارش «خراب - نیاز به چاپ مجدد» شود)</label></div>
+<button class="btn" style="background:#dc2626" onclick="dfSave()">✅ ثبت خرابی و کسر مصرف از انبار</button> <button class="btn" style="background:#64748b" onclick="$('df_f').style.display='none'">انصراف</button></div></div>
+<div id="rp"></div></div></div>
+<div class="pg" id="p6"><div class="card gd"><h2>❓ راهنمای استفاده</h2>
+<h3>🧮 محاسبه قیمت</h3><p>قیمت رنگ سفید، رول و پودر را وارد کنید (هنگام نوسان قیمت فقط همین سه عدد را عوض کنید). ارتفاع طرح، تعداد پیکسل و تعداد کپی را بنویسید. قیمت تمام‌شده (با ۱۵٪ جوهر رنگی)، سود و قیمت نهایی خودکار حساب می‌شود.</p>
+<h3>📦 انبار و خرید</h3><p>در «خرید مواد» هر خرید را ثبت کنید تا موجودی زیاد شود. مصرف مواد در پایان هر روز با «ثبت گزارش» در صفحه «گزارش روزانه» از انبار کسر می‌شود. موجودی را می‌توانید دستی هم اصلاح کنید.</p>
+<h3>⚠️ چاپ خراب یا اشتباه</h3><p>اگر چاپی اشتباه یا خراب شد، در «گزارش روزانه» بخش «ضایعات و چاپ خراب» (یا دکمه «⚠️ خرابی» کنار سفارش) را بزنید و ابعاد، تعداد و علت را بنویسید. مصرف رول، رنگ و پودر آن از انبار کسر می‌شود، سفارش در صورت نیاز به چاپ مجدد وضعیت «خراب - نیاز به چاپ مجدد» می‌گیرد، و در گزارش روزانه، گزارش ماهانه (خط قرمز ضایعات) و بایگانی مشتری نوشته می‌شود. ضایعات به مشتری فاکتور نمی‌شود. وقتی چاپ مجدد انجام شد، دکمه «🔁 چاپ مجدد انجام شد» را کنار همان خرابی بزنید: تعداد کپی و تاریخ را می‌پرسد، سفارش دوباره «چاپ شد» می‌شود و یک ردیف «چاپ مجدد» در گزارش کار همان روز اضافه می‌شود تا مصرفش هم کسر شود.</p><h3>✅ سفارش تکمیل‌شده</h3><p>وقتی سفارشی چاپ شده باشد و فاکتورش هم ثبت شود، خودکار «تکمیل شد» می‌شود و از لیست ثبت سفارش خارج و به بایگانی مشتری (بخش «✅ سفارش‌های تکمیل‌شده») منتقل می‌شود. می‌توانید با دکمه «✅ تکمیل» کنار سفارش چاپ‌شده هم دستی تکمیل کنید. برای دیدن آن‌ها در لیست، تیک «نمایش سفارش‌های تکمیل‌شده» را بزنید؛ در بایگانی مشتری هم دکمه «↩️ بازگرداندن» دارند.</p><h3>📦 تاریخ انبار</h3><p>کنار هر ماده در انبار یک تاریخ هست که با هر تغییر موجودی (خرید، مصرف، ویرایش) خودکار روی امروز می‌رود و بعد از شمارش انبار قابل ویرایش است.</p><h3>📚 طرح سفارش‌ها در کتابخانه</h3><p>عکس هر سفارش ثبت‌شده خودکار با نام مشتری در کتابخانه طرح و دسته «سفارشات» ذخیره می‌شود (سفارش‌های قبلی هم یک بار اضافه می‌شوند). حذف کامل سفارش، طرح آن را هم از کتابخانه پاک می‌کند.</p><h3>🏠 صفحه اصلی</h3><p>اولین گزینه منو و لوگو، شما را به صفحه اصلی می‌برد. آنجا کارهای باقی‌مانده (سفارش‌های منتظر تایید، آماده چاپ، بدون فاکتور، کمبود رول، درخواست‌های خرید، چاپ مجدد، گزارش کار ثبت‌نشده، نرخ دلار و پشتیبان‌گیری)، موجودی انبار، سود این ماه و آخرین سفارش‌ها دیده می‌شود.</p><h3>📚 کتابخانه طرح (آرشیو مجزا مثل پینترست)</h3><p>عکس طرح‌ها را (یک یا چندتا) اضافه کنید؛ هر طرح کد خودکار (D-0001) دارد که قابل ویرایش است، به‌علاوه عنوان، دسته، برچسب، ابعاد، پیکسل، مشتری، مسیر فایل اصلی و توضیحات. دسته‌ها را با «➕ دسته جدید» بسازید و با کادر جستجو از روی عنوان، کد یا برچسب پیدا کنید. «📺 نمایش برای مشتری» فقط عکس، کد، عنوان و ابعاد را در حالت تمام‌صفحه نشان می‌دهد (با کلیک روی عکس، اسلاید با فلش‌ها)؛ اگر چند طرح را «انتخاب» کنید فقط همان‌ها نمایش داده می‌شود. «📄 کاتالوگ PDF» هم از طرح‌های انتخاب‌شده یا فیلترشده کاتالوگ چاپی می‌سازد. «📁 انتخاب پوشه دانلود» پوشه‌ای را تعیین می‌کند که دکمه «⬇️» فایل اصلی طرح را در آن ذخیره کند. «➕ سفارش» طرح را به ثبت سفارش می‌برد و دکمه «📚» کنار هر سفارش، طرح آن را به کتابخانه می‌فرستد. فایل‌های اصلی در مرورگر نگه‌داری می‌شوند و در فایل پشتیبان نیستند؛ فقط پیش‌نمایش آن‌ها در پشتیبان هست.</p><h3>💹 سود و زیان</h3><p>برای هر سفارش: درآمد (فاکتورها) منهای هزینه مواد (قیمت تمام‌شده) و ضایعات. در جمع کل، هزینه تست و فاصله و ضایعات عمومی هم کم می‌شود. سفارش‌های بدون فاکتور در سود حساب نمی‌شوند و جدا نمایش داده می‌شوند. هزینه‌ها با قیمت مواد و نرخ دلار فعلی (یا محاسبه ذخیره‌شده سفارش) تخمین زده می‌شود.</p><h3>📑 چند طرح برای یک مشتری</h3><p>در «ثبت سفارش» چند عکس را یک‌جا انتخاب کنید (یا هر طرح را پر کنید و «➕ افزودن طرح دیگر» بزنید). برای هر طرح ارتفاع، تعداد و پیکسل را در جدول طرح‌ها بنویسید و «ثبت سفارش» را بزنید. هر طرح یک سفارش جدا با شماره خودش می‌شود (برای محاسبه قیمت، گزارش کار و ضایعات)، ولی همه در یک گروه و یک برگه تایید با همه عکس‌ها می‌آیند. دکمه «🧾 فاکتور» همه طرح‌های گروه را یک‌جا در فاکتور می‌گذارد.</p><h3>💵 نمودار نرخ دلار</h3><p>در «گزارش ماهانه»، زیر نمودار اصلی، نمودار خطی نرخ دلار برای روزهای ماه (یا ماه‌های سال) دیده می‌شود، همراه کمترین، بیشترین، میانگین و درصد تغییر. نرخ هر روز وقتی ثبت می‌شود که در کادر سبز منو بنویسید؛ نرخ خریدها هم برای روزهایی که نرخ ثبت نشده حساب می‌شود.</p><h3>🔥 هزینه پرس‌کاری</h3><p>در فاکتور کادر «هزینه پرس‌کاری» هست و به مبلغ نهایی اضافه می‌شود. می‌توانید مبلغ را مستقیم بنویسید یا بالای فاکتور تعداد پرس × قیمت هر پرس را وارد کنید.</p><h3>🗑 حذف کامل سفارش</h3><p>دکمه حذف در لیست سفارش‌ها، فاکتورها، بایگانی، گزارش کار روزانه، صفحه محاسبه و گزارش ماهانه، «کل اطلاعات آن سفارش» را حذف می‌کند: خود سفارش، فاکتورها، محاسبه‌های قیمت و ردیف گزارش کار. مصرف مواد گزارش‌های کار هم اصلاح و به انبار برگردانده می‌شود. قبل از حذف، لیست موارد نمایش داده می‌شود. اگر مطمئن نیستید، اول «ذخیره اطلاعات» را بزنید.</p><h3>🧾 فاکتور</h3><p>فاکتورهای ثبت‌شده در لیست «🧾 فاکتورهای ثبت‌شده» بالای فاکتور (و در بایگانی مشتری) هستند؛ با «✏️ ویرایش» در فرم باز می‌شوند و بعد از اصلاح با «ثبت فاکتور» به‌روز می‌شوند، و «🗑 حذف» فاکتور اشتباه را پاک می‌کند. برای شروع فاکتور تازه، «🆕 فاکتور جدید» را بزنید. قیمت فاکتور به سه شکل تنظیم می‌شود: تعرفه خودکار بر اساس متراژ، قیمت دستی هر متر (با انتخاب «قیمت دستی هر متر» یا نوشتن مستقیم در کادر قیمت هر متر)، یا «مبلغ کل دستی». خود تعرفه‌ها هم در «ویرایش تعرفه‌ها» قابل تغییرند. مشتری را انتخاب کنید (یا نام را بنویسید)، طول هر طرح و تعداد کپی را وارد کنید. متراژ، قیمت هر متر بر اساس تعرفه و مبلغ نهایی خودکار حساب می‌شود. خروجی: اسکرین‌شات، اکسل و PDF. دکمه «افزودن به فاکتور» در صفحه محاسبه، طرح را به فاکتور منتقل می‌کند.</p><h3>👥 مشتریان</h3><p>کد هر مشتری را خودتان (همان کد سیستم حسابداری) هنگام ثبت می‌نویسید و تکراری پذیرفته نمی‌شود. همه مشخصات در جدول قابل ویرایش است. در فاکتور از فهرست انتخاب می‌شود و تعداد و جمع فاکتورهای هر مشتری در جدول مشتریان دیده می‌شود.</p>
+<h3>📄 خروجی PDF</h3><p>در هر صفحه دکمه «خروجی PDF» را بزنید و در پنجره چاپ، مقصد را روی «Save as PDF» (ذخیره به‌صورت PDF) بگذارید.</p>
+<h3>📅 گزارش روزانه</h3><p>مصرف‌های کسرشده، خریدها و فاکتورهای صادرشده هر روز ثبت می‌شود. تاریخ را عوض کنید تا گزارش روزهای قبل را ببینید.</p>
+<h3>📝 ثبت سفارش</h3><p>بالای لیست سفارش‌ها، جمع متراژ سفارش‌ها با موجودی رول انبار مقایسه می‌شود (سفارش‌های «چاپ شد» حساب نمی‌شوند). اگر موجودی کم باشد، هشدار قرمز با میزان کمبود و تعداد رول لازم می‌آید. مشتری، عنوان، ابعاد و عکس چیدمان را وارد کنید و «ثبت سفارش» بزنید. برگه تاییدیه همان لحظه ساخته می‌شود؛ با «اسکرین‌شات برای تایید مشتری» یا «خروجی PDF» برای مشتری بفرستید. وضعیت هر سفارش (در انتظار تایید، تایید شد، چاپ شد) را در لیست تغییر دهید.</p><h3>🧮 محاسبه از سفارش</h3><p>در ثبت سفارش، علاوه بر ارتفاع و تعداد، پیکسل طرح را هم بنویسید. سپس در صفحه محاسبه سفارش را انتخاب کنید (یا دکمه «🧮 محاسبه» کنار سفارش را بزنید) تا ارتفاع، تعداد، پیکسل و مشتری خودکار پر شود.</p><h3>🗂 بایگانی مشتری</h3><p>در صفحه محاسبه مشتری را انتخاب و «ثبت محاسبه در بایگانی» را بزنید. در بایگانی، برای هر مشتری سه جدول سفارش‌ها، محاسبه‌های قیمت و فاکتورها دیده می‌شود (فاکتور وقتی ثبت می‌شود که مشتری را از لیست فاکتور انتخاب کرده باشید).</p><h3>📈 گزارش ماهانه</h3><p>نمودار خطی فروش، خرید مواد و هزینه تمام‌شده تولید را برای روزهای یک ماه یا ماه‌های یک سال نشان می‌دهد.</p><h3>💵 نرخ دلار</h3><p>قیمت مواد (رنگ سفید، رول، پودر) به دلار وارد می‌شود. نرخ دلار امروز را هر روز در کادر سبز منوی کناری بنویسید؛ همه محاسبه‌ها و خریدها با همان نرخ به تومان تبدیل می‌شوند. اگر نرخ امروز ثبت نشده باشد، هشدار قرمز می‌بینید. قیمت خرید هم به دلار وارد می‌شود و با نرخ همان روز به تومان ثبت می‌گردد.</p><h3>💾 ثبت فاکتور</h3><p>بعد از پر کردن فاکتور و نوشتن شماره فاکتور، دکمه «ثبت فاکتور» را بزنید تا در بایگانی مشتری و گزارش‌ها ثبت شود. در همه جا که مشتری را انتخاب می‌کنید (فاکتور، محاسبه)، لیست سفارش‌ها فقط سفارش‌های همان مشتری را نشان می‌دهد.</p><h3>📨 درخواست خرید</h3><p>اگر کمتر خریدید، مقدار واقعی را در ستون «مقدار خرید این‌بار» بنویسید؛ باقی‌مانده منتظر می‌ماند و بعداً می‌خرید، یا با «بستن قلم» رهایش می‌کنید. اگر بیشتر خریدید، همان مقدار بیشتر را بنویسید. اگر قلمی خریداری نشد، «خریداری نشد» را بزنید. در «خرید مواد» چند ماده (رنگ سفید، پودر، رول، جوهرهای C/M/Y/K) را با مقدار به لیست درخواست اضافه و ثبت کنید. درخواست در بخش «منتظر خرید» می‌ماند. بعد از خرید، قیمت واحد را بنویسید و «خریداری شد» را بزنید تا همان مقدار به انبار اضافه و در سابقه خریدها ثبت شود.</p><h3>📝 گزارش کار روزانه</h3><p>سفارش‌هایی که وضعیتشان «چاپ شد» می‌شود (تاریخ چاپ هر سفارش در لیست سفارش‌ها قابل ویرایش است) خودکار در «گزارش روزانه» همان روز می‌آیند؛ ارتفاع و تعداد واقعی را در صورت نیاز اصلاح کنید. برنامه خودکار برای هر روز کاری ۱۰ سانتی‌متر «تست» و برای هر سفارش ۲ سانتی‌متر «فاصله» اضافه می‌کند (قابل تغییر در همان صفحه). با «ثبت گزارش»، مصرف رول، رنگ سفید، پودر و جوهرها از انبار کسر می‌شود و سفارش‌های تیک‌خورده «چاپ شد» می‌شوند. ثبت دوباره برای همان روز، مصرف قبلی را برمی‌گرداند و جایگزین می‌کند.</p><h3>⚙️ ذخیره خودکار</h3><p>در «ذخیره خودکار» می‌توانید فاصله زمانی، تعداد نسخه‌ها و پوشه ذخیره را تنظیم کنید. در Chrome یا Edge می‌توانید یک پوشه انتخاب کنید تا فایل پشتیبان خودکار در آن نوشته شود؛ مرورگر در هر بار باز کردن برنامه یک تایید می‌خواهد. نسخه‌های داخلی مرورگر هم نگه‌داری می‌شوند و از همان صفحه قابل بازیابی‌اند.</p><h3>💾 ذخیره و بازیابی</h3><p>عکس‌های چیدمان سفارش‌ها در بخش جدا از حافظه اصلی مرورگر نگه‌داری می‌شوند تا فایل پشتیبان بزرگ هم بدون خطا بازیابی شود. در صورت خطا، پیام دقیق علت نمایش داده می‌شود. دکمه «ذخیره اطلاعات» همه اطلاعات (انبار، خرید، مشتریان، سفارش‌ها و قیمت‌ها) را در یک فایل می‌دهد و «بازیابی» همان فایل را برمی‌گرداند. مرتب پشتیبان بگیرید. اطلاعات در همین مرورگر ذخیره می‌شود. با پاک کردن اطلاعات مرورگر یا تعویض مرورگر از بین می‌رود؛ از گزارش‌ها PDF نگه دارید.</p>
+<p><button class="btn dl" onclick="if(confirm('همه اطلاعات انبار، خرید و گزارش‌ها پاک شود؟')){localStorage.removeItem('dtfdata');location.reload()}">🗑 پاک کردن همه اطلاعات</button></p>
+</div></div>
+</div></div>
+
+<script>
+let LAST={};const ST={w:"⏳ در انتظار تایید",ok:"✅ تایید شد",pr:"🖨️ چاپ شد",bad:"⚠️ خراب - نیاز به چاپ مجدد",done:"✅ تکمیل شد (بایگانی)"};const isPr=o=>o.status=="pr"||o.status=="done";let showArch=false;const ids=["usd","h","px","n","pw","pf","pp","cw","fp","cp","rl","rw","pc","pr"];
+const def={};ids.forEach(i=>def[i]=document.getElementById(i).value);
+const $=i=>document.getElementById(i);
+const fa=x=>Math.round(x).toLocaleString("fa-IR");
+const fd=(x,d=1)=>x.toLocaleString("fa-IR",{maximumFractionDigits:d});
+try{const s=JSON.parse(localStorage.getItem("dtfcalc")||"{}");ids.forEach(i=>{if(s[i]!==undefined&&(s.usd!==undefined||!["pw","pf","pp"].includes(i)))$(i).value=s[i]})}catch(e){}
+function calc(){
+ const v={};ids.forEach(i=>v[i]=parseFloat($(i).value)||0);
+ window._dirty=1;try{localStorage.setItem("dtfcalc",JSON.stringify(Object.fromEntries(ids.map(i=>[i,$(i).value]))))}catch(e){}
+ $("fullpx").textContent=fd(v.fp,0);
+ const len=v.h/100*v.n;                       // متر کل
+ const ratio=v.fp?(v.px>0?v.px/v.fp:v.h/100):0;                // نسبت پوشش
+ const whiteMl=v.cw*ratio*v.n;                // مصرف سفید (ارتفاع در پیکسل لحاظ شده)
+ const R=v.usd||0;
+ $("pw_t").textContent="≈ "+fa(v.pw*R)+" ت";$("pf_t").textContent="≈ "+fa(v.pf*R)+" ت";$("pp_t").textContent="≈ "+fa(v.pp*R)+" ت";
+ const white=whiteMl/1000*v.pw*R;
+ const filmM=v.rl?v.pf*R/v.rl:0;
+ const film=len*filmM;
+ const powG=v.cp*ratio*v.n;
+ const pow=powG/1000*v.pp*R;
+ const base=white+film+pow;
+ const color=base*v.pc/100;
+ const cost=base+color;
+ const profit=cost*v.pr/100;
+ const price=cost+profit;
+ LAST={len,whiteMl,powG,h:v.h,n:v.n,cost,price};
+ const n=v.n||1,L=len||1;
+ const rows=[
+ ["📏 طول کل فیلم مصرفی",fd(len,2)+" متر"],
+ ["🎞️ قیمت فیلم هر متر",fa(filmM)+" ت"],
+ ["🤍 مصرف رنگ سفید",fd(whiteMl,1)+" میلی‌لیتر"],
+ ["🤍 هزینه رنگ سفید",fa(white)+" ت"],
+ ["🎞️ هزینه فیلم",fa(film)+" ت"],
+ ["✨ مصرف پودر",fd(powG,1)+" گرم"],
+ ["✨ هزینه پودر",fa(pow)+" ت"],
+ ["🌈 جوهر رنگی ("+fd(v.pc,0)+"٪)",fa(color)+" ت"],
+ ["قیمت تمام‌شده کل|t",fa(cost)+" ت"],
+ ["سود ("+fd(v.pr,0)+"٪)",fa(profit)+" ت"]];
+ $("tb").innerHTML=rows.map(r=>{const[a,t]=r[0].split("|");return `<tr class="${t||""}"><td>${a}</td><td>${r[1]}</td></tr>`}).join("");
+ $("fin").innerHTML=`<div>💵 قیمت نهایی کل سفارش</div><div class="big">${fa(price)} تومان</div>
+ <div class="row"><span>🏷️ تمام‌شده هر کپی: ${fa(cost/n)}</span><span>✅ قیمت نهایی هر کپی: ${fa(price/n)}</span><span>📐 قیمت نهایی هر متر: ${fa(price/L)}</span></div>`;
+}
+function resetAll(){ids.forEach(i=>$(i).value=def[i]);calc()}
+ids.forEach(i=>$(i).addEventListener("input",calc));calc();
+const MN={white:"رنگ سفید",film:"رول فیلم",powder:"پودر",cy:"جوهر آبی (C)",mg:"جوهر سرخابی (M)",yl:"جوهر زرد (Y)",bk:"جوهر مشکی (K)"};
+let D={inv:{white:0,film:0,powder:0},buys:[],lines:[],c:{n:"",i:"",d:""}};
+try{const x=JSON.parse(localStorage.getItem("dtfdata")||"null");if(x)D=x}catch(e){}
+const ALLM=["white","film","powder","cy","mg","yl","bk"];ALLM.forEach(k=>D.inv[k]=D.inv[k]||0);D.reqs=D.reqs||[];D.rn=D.rn||1;D.defects=D.defects||[];D.lib=D.lib||[];D.libCats=D.libCats||[];D.libN=D.libN||1;
+let _sw=0;const IMGDONE=new Set(),IMGLEN={};
+const ik=o=>o.ik!=null?o.ik:o.id,imgObjs=()=>D.orders.concat(D.lib||[]);
+function stripImg(k,v){const ky=this&&(this.ik!=null?this.ik:this.id);return(k==="img"&&ky!=null&&IMGDONE.has(ky))?undefined:v}
+const save=()=>{window._dirty=1;try{localStorage.setItem("dtfdata",JSON.stringify(D,stripImg))}catch(e){if(!_sw){_sw=1;alert("حافظه مرورگر پر شد ("+(e&&e.name||"")+"). همین حالا «ذخیره اطلاعات» را بزنید.")}}if(window._idbReady)imgSync()};
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab,.pg").forEach(e=>e.classList.remove("on"));b.classList.add("on");$(b.dataset.p).classList.add("on")});
+const unit={white:"لیتر",film:"متر",powder:"کیلو",cy:"لیتر",mg:"لیتر",yl:"لیتر",bk:"لیتر"};
+function renderInv(){const t=jkey(Date.now());D.invDate=D.invDate||{};D.invSnap=D.invSnap||{};let ch=false;
+ ALLM.forEach(k=>{const v=D.inv[k]||0;if(D.invSnap[k]==null){D.invSnap[k]=v;if(!D.invDate[k]){D.invDate[k]=t;ch=true}}else if(Math.abs(D.invSnap[k]-v)>1e-9){D.invSnap[k]=v;D.invDate[k]=t;ch=true}
+  $("s_"+k).textContent=fd(v,2)+" "+unit[k];$("s_"+k).className="v"+(v<0?" neg":"");if(document.activeElement!==$("e_"+k))$("e_"+k).value=+v.toFixed(2);if(document.activeElement!==$("d_"+k))$("d_"+k).value=D.invDate[k]||""});
+ if($("inv_today"))$("inv_today").textContent=t;if(ch)save()}
+ALLM.forEach(k=>$("e_"+k).addEventListener("input",()=>{D.inv[k]=parseFloat($("e_"+k).value)||0;save();renderInv()}));
+ALLM.forEach(k=>$("d_"+k).addEventListener("change",()=>{D.invDate[k]=nk(nd($("d_"+k).value))||D.invDate[k];save();renderInv()}));
+function useStock(){if(!LAST.len)return;D.inv.white-=LAST.whiteMl/1000;D.inv.film-=LAST.len;D.inv.powder-=LAST.powG/1000;save();renderInv();alert("مصرف این سفارش از انبار کسر شد.")}
+function addBuy(){const m=$("b_m").value,q=parseFloat($("b_q").value)||0,usd=parseFloat($("b_p").value)||0,R=parseFloat($("usd").value)||0,p=usd*R;if(!q)return;if(usd&&!R){alert("نرخ دلار را بنویسید.");return}
+ D.buys.unshift({id:Date.now(),m,q,p,usd,rate:R,d:$("b_d").value,s:$("b_s").value});
+ D.inv[m]+=m=="film"?q*(parseFloat($("rl").value)||100):q;
+ const pm={white:"pw",film:"pf",powder:"pp"}[m];if($("b_u").checked&&usd&&pm){$(pm).value=usd;calc()}
+ $("b_q").value="";save();renderInv();renderBuys()}
+function delBuy(id){const b=D.buys.find(x=>x.id==id);if(!b||!confirm("حذف این خرید و کسر از انبار؟"))return;D.inv[b.m]-=b.m=="film"?b.q*(parseFloat($("rl").value)||100):b.q;D.buys=D.buys.filter(x=>x.id!=id);D.reqs.forEach(r=>r.items.forEach(i=>{if(i.bid==id||(i.bids||[]).includes(id)){i.got=Math.max(0,(i.got==null?i.q:i.got)-b.q);i.bids=(i.bids||[]).filter(x=>x!=id);if(i.bid==id)i.bid=null;i.done=false;i.cancel=false;r.status="w"}}));save();renderInv();renderBuys();renderReqs()}
+function renderBuys(){let t=0;$("bl").innerHTML=D.buys.map(b=>{t+=b.q*b.p;return `<tr><td>${b.d||"-"}</td><td>${MN[b.m]}</td><td>${fd(b.q,2)}</td><td>${b.usd?fd(b.usd,2):"-"}</td><td>${fa(b.p)}</td><td>${fa(b.q*b.p)}</td><td>${b.s||"-"}</td><td><button class="btn dl" onclick="delBuy(${b.id})">🗑</button></td></tr>`}).join("");$("bt").textContent="جمع کل خریدها: "+fa(t)+" تومان"}
+renderInv();renderBuys();
+
+
+D.log=D.log||[];
+const nd=t=>String(t).replace(/[۰-۹]/g,c=>"۰۱۲۳۴۵۶۷۸۹".indexOf(c)).replace(/[٠-٩]/g,c=>"٠١٢٣٤٥٦٧٨٩".indexOf(c)).trim();
+function jkey(ts){const p=new Intl.DateTimeFormat("en-u-ca-persian-nu-latn",{year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(ts)),g=t=>p.find(x=>x.type==t).value;return g("year")+"/"+g("month")+"/"+g("day")}
+function clock(){const d=new Date();$("ck_t").textContent=d.toLocaleTimeString("fa-IR");$("ck_d").textContent=d.toLocaleDateString("fa-IR-u-ca-persian",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}
+clock();setInterval(clock,1000);
+$("b_d").value=jkey(Date.now());
+$("r_d").value=jkey(Date.now());$("r_d").addEventListener("input",renderRep);
+const _us=useStock;useStock=function(){if(!LAST.len)return;D.log.push({ts:Date.now(),k:"use",cs:$("calc_cs").value,ord:curCalcOrd,h:LAST.h,n:LAST.n,w:LAST.whiteMl,f:LAST.len,p:LAST.powG,cost:LAST.cost,price:LAST.price});_us();renderRep()};
+const _ab=addBuy;addBuy=function(){const c=D.buys.length;_ab();if(D.buys.length>c){D.buys[0].ts=Date.now();D.buys[0].d=nd(D.buys[0].d)||jkey(Date.now());save();renderBuys();renderRep()}};
+let editInv=null;
+function invSnap(){return{rows:[...$("rows").children].map(r=>({nm:r.querySelector(".nm").value,dm:r.querySelector(".dm").value,cp:r.querySelector(".cp").value})).filter(r=>r.nm||r.dm),cust:$("cust").value,cs:$("cs").value,no:$("inv").value,date:$("date").value,design:$("design").value,press:$("press").value,prn:$("pr_n").value,prp:$("pr_p").value,ppm:$("ppm").value,manual:manualPrice,totov:$("totov").value}}
+function invLog(){const m=[...$("rows").children].reduce((a,r)=>a+rowLen(r),0)/100;if(!m)return;
+ const total=num("totov")>0?num("totov")+num("design")+num("press"):(num("ppm")?Math.round(m*num("ppm"))+num("design")+num("press"):0),e={ts:Date.now(),k:"inv",c:$("cust").value,cs:$("cs").value,no:$("inv").value,ord:curOrds.slice(),total,m,snap:invSnap()};
+ let old=editInv?D.log.find(x=>x.k=="inv"&&x.ts==editInv):null;
+ if(!old&&e.no)old=D.log.find(x=>x.k=="inv"&&x.no==e.no&&jkey(x.ts)==jkey(e.ts));
+ if(old)Object.assign(old,e,{ts:old.ts});else D.log.push(e);
+ editInv=(old||e).ts;ordAutoDone();save();renderOL();renderRep();renderCusts();renderInvList();invBanner()}
+function invBanner(){const e=editInv&&D.log.find(x=>x.k=="inv"&&x.ts==editInv);$("f_edit").innerHTML=e?`<div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:8px 10px;margin-top:6px;font-size:13px">✏️ در حال ویرایش فاکتور شماره <b>${e.no||"—"}</b> — بعد از اصلاح «💾 ثبت فاکتور» را بزنید. <button class="btn" style="background:#64748b" onclick="invNew()">انصراف / فاکتور جدید</button></div>`:""}
+function invNew(){editInv=null;curOrds=[];$("rows").innerHTML="";rowCount=0;for(let i=0;i<5;i++)addRow();$("cs").value="";["cust","inv","design","press","pr_n","pr_p","ppm","totov"].forEach(i=>$(i).value="");$("date").value=toFa(jkey(Date.now()).replace(/\//g,"/"));manualPrice=false;$("f_info").textContent="";pmSync();fillFord();icalc();invBanner()}
+function editInvoice(ts){const e=D.log.find(x=>x.k=="inv"&&x.ts==ts);if(!e)return;const sn=e.snap;
+ $("rows").innerHTML="";rowCount=0;
+ if(sn&&sn.rows.length)sn.rows.forEach(r=>{addRow();const t=$("rows").lastChild;t.querySelector(".nm").value=r.nm;t.querySelector(".dm").value=r.dm;t.querySelector(".cp").value=r.cp});else{for(let i=0;i<3;i++)addRow()}
+ $("cs").value=e.cs||"";$("cust").value=(sn?sn.cust:e.c)||"";$("inv").value=(sn?sn.no:e.no)||"";
+ if(sn){$("date").value=sn.date||"";$("design").value=sn.design||"";$("press").value=sn.press||"";$("pr_n").value=sn.prn||"";$("pr_p").value=sn.prp||"";manualPrice=!!sn.manual;$("ppm").value=sn.manual?sn.ppm:"";$("totov").value=sn.totov||""}else{$("design").value="";$("press").value="";$("pr_n").value="";$("pr_p").value="";$("ppm").value="";$("totov").value="";manualPrice=false}
+ curOrds=(e.ord||[]).slice();editInv=ts;$("f_info").textContent=curOrds.length?"سفارش‌های این فاکتور: "+curOrds.join("، "):"";
+ pmSync();fillFord();icalc();invBanner();document.querySelector("[data-p=p4]").click();window.scrollTo(0,0);
+ if(!sn)alert("این فاکتور قدیمی است و ردیف‌هایش ذخیره نشده؛ ردیف‌ها را دوباره وارد کنید.")}
+function delInvoice(ts){const e=D.log.find(x=>x.k=="inv"&&x.ts==ts);if(!e)return;const nos=(e.ord||[]).filter(n=>D.orders.some(o=>o.no==n));
+ if(nos.length){if(!confirm("حذف فاکتور شماره "+(e.no||"—")+"؟\nبا حذف آن، سفارش‌های مربوط ("+nos.join("، ")+") با همه اطلاعاتشان (سفارش، محاسبه قیمت، گزارش کار) هم حذف می‌شوند.\nاین کار برگشت‌پذیر نیست. ادامه؟"))return;nos.forEach(n=>delOrderAll(n,true))}
+ else if(!confirm("فاکتور شماره "+(e.no||"—")+(e.c?" ("+e.c+")":"")+" حذف شود؟ این کار برگشت‌پذیر نیست."))return;
+ D.log=D.log.filter(x=>x.ts!=ts||x.k!="inv");if(editInv==ts)editInv=null;save();refreshAll()}
+function renderInvList(){const L=D.log.filter(x=>x.k=="inv").sort((a,b)=>b.ts-a.ts);$("il_n").textContent=fd(L.length,0);
+ $("il2").innerHTML=L.map(x=>`<tr><td>${jkey(x.ts)}</td><td>${x.no||"-"}</td><td>${x.c||"-"}</td><td>${(x.ord||[]).length?x.ord.join("، "):"-"}</td><td>${x.m?fd(x.m,2):"-"}</td><td>${fa(x.total)}</td><td><button class="btn" onclick="editInvoice(${x.ts})">✏️ ویرایش</button> <button class="btn dl" onclick="delInvoice(${x.ts})">🗑 حذف</button></td></tr>`).join("")||'<tr><td colspan="7">فاکتوری ثبت نشده</td></tr>'}
+const _is=ishot,_ip=ipdf,_ix=xlsx;ishot=function(){invLog();return _is()};ipdf=function(){invLog();return _ip()};xlsx=function(){invLog();return _ix()};
+function toInvoice(){let r=[...$("rows").children].find(x=>!x.querySelector(".dm").value&&!x.querySelector(".nm").value);if(!r){addRow();r=$("rows").lastChild}
+ r.querySelector(".nm").value="طرح DTF";r.querySelector(".dm").value=$("h").value;r.querySelector(".cp").value=$("n").value;r.dispatchEvent(new Event("input"));document.querySelector('[data-p=p4]').click()}
+D.cust=D.cust||[];D.nc=D.nc||101;
+const esc=t=>String(t==null?"":t).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+D.cust.forEach(c=>c.code=String(c.code));
+function renderCusts(){const q=nd($("k_s").value).toLowerCase(),st=c=>{const L=D.log.filter(x=>x.k=="inv"&&x.cs==c.code);return[L.length,L.reduce((a,x)=>a+(x.total||0),0)]};
+ $("kl").innerHTML=D.cust.map((c,i)=>[c,i]).filter(([c])=>!q||(c.code+" "+c.name+" "+(c.phone||"")).toLowerCase().includes(q)).map(([c,i])=>{const[n,t]=st(c);return `<tr><td><input style="width:90px;direction:ltr;font-weight:bold" value="${esc(c.code)}" onchange="chCode(${i},this.value)"></td><td><input style="width:130px;direction:rtl" value="${esc(c.name)}" onchange="upC(${i},'name',this.value)"></td><td><input style="width:105px" value="${esc(c.phone)}" onchange="upC(${i},'phone',this.value)"></td><td><input style="width:140px;direction:rtl" value="${esc(c.note)}" onchange="upC(${i},'note',this.value)"></td><td>${fd(n,0)}</td><td>${fa(t)}</td><td class="noprint"><button class="btn" onclick="openArc(D.cust[${i}].code)">🗂</button> <button class="btn dl" onclick="delC(${i})">🗑</button></td></tr>`}).join("")||'<tr><td colspan="7">مشتری‌ای ثبت نشده</td></tr>';
+ const cur=$("cs").value;$("cs").innerHTML='<option value="">— انتخاب مشتری —</option>'+D.cust.map(c=>`<option value="${esc(c.code)}">${esc(c.code)} - ${esc(c.name)}</option>`).join("");$("cs").value=cur;fillOcs()}
+function syncCust(code){const c=D.cust.find(x=>x.code==code);if(!c)return;const t=c.code+" - "+c.name;D.orders.forEach(o=>{if(o.cs==code)o.cust=t});D.log.forEach(x=>{if(x.k=="inv"&&x.cs==code)x.c=t})}
+function addCust(){const code=nd($("k_c").value),n=$("k_n").value.trim();if(!code||!n){alert("کد و نام مشتری را وارد کنید.");return}
+ if(D.cust.some(x=>x.code==code)){alert("این کد قبلاً برای مشتری دیگری ثبت شده است.");return}
+ D.cust.push({code,name:n,phone:$("k_p").value,note:$("k_a").value});$("k_c").value=$("k_n").value=$("k_p").value=$("k_a").value="";save();renderCusts()}
+function upC(i,k,v){D.cust[i][k]=v;syncCust(D.cust[i].code);save();renderCusts();renderArc();renderOL();renderRep()}
+function chCode(i,v){v=nd(v);const c=D.cust[i];if(!v||D.cust.some((x,j)=>j!=i&&x.code==v)){alert(!v?"کد نمی‌تواند خالی باشد.":"این کد قبلاً ثبت شده است.");renderCusts();return}
+ const old=c.code;c.code=v;D.orders.forEach(o=>{if(o.cs==old)o.cs=v});D.calcs.forEach(x=>{if(x.cs==old)x.cs=v});D.log.forEach(x=>{if(x.cs==old)x.cs=v});syncCust(v);save();renderCusts();renderArc();renderOL();renderRep()}
+function delC(i){const c=D.cust[i];if(!confirm("حذف مشتری «"+c.name+"»؟ سفارش‌ها و بایگانی او حذف نمی‌شود."))return;D.cust.splice(i,1);save();renderCusts()}
+$("k_s").addEventListener("input",renderCusts);
+$("cs").addEventListener("change",()=>{const c=D.cust.find(x=>x.code==$("cs").value);if(c){$("cust").value=c.code+" - "+c.name;$("cust").dispatchEvent(new Event("input"))}});
+function renderRep(){const k=nd($("r_d").value);
+ const U=D.log.filter(x=>x.k=="use"&&!x.df&&(x.dk||jkey(x.ts))==k),B=D.buys.filter(b=>b.ts&&jkey(b.ts)==k||(!b.ts&&nd(b.d||"")==k)),I=D.log.filter(x=>x.k=="inv"&&jkey(x.ts)==k);
+ const tm=x=>new Date(x).toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"});
+ const tb=(h,r)=>`<table class="lst" style="width:100%;border-collapse:collapse"><thead><tr>${h.map(x=>"<th>"+x+"</th>").join("")}</tr></thead><tbody>${r||`<tr><td colspan="${h.length}">موردی ثبت نشده</td></tr>`}</tbody></table>`;
+ const O=(D.orders||[]).filter(o=>jkey(o.ts)==k),DFd=D.defects.filter(d=>d.date==k),dc=DFd.reduce((a,d)=>a+(d.use.cost||0),0);const bt=B.reduce((a,b)=>a+b.q*b.p,0),it=I.reduce((a,x)=>a+x.total,0),uc=U.reduce((a,x)=>a+x.cost,0);
+ $("rp").innerHTML=`<h3 style="color:#6d28d9">🧮 مصرف و تولید</h3>`+tb(["ساعت","ارتفاع","تعداد","رنگ سفید (میلی‌لیتر)","فیلم (متر)","پودر (گرم)","قیمت تمام‌شده"],U.map(x=>`<tr><td>${tm(x.ts)}</td><td>${x.wr?"گزارش کار":fd(x.h,1)}</td><td>${x.wr?"-":fd(x.n,0)}</td><td>${fd(x.w,1)}</td><td>${fd(x.f,2)}</td><td>${fd(x.p,1)}</td><td>${fa(x.cost)}</td></tr>`).join(""))+
+ `<h3 style="color:#6d28d9">🛒 خریدها</h3>`+tb(["ماده","مقدار","قیمت واحد","جمع","فروشنده"],B.map(b=>`<tr><td>${MN[b.m]}</td><td>${fd(b.q,2)}</td><td>${fa(b.p)}</td><td>${fa(b.q*b.p)}</td><td>${b.s||"-"}</td></tr>`).join(""))+
+ `<h3 style="color:#6d28d9">📝 سفارش‌های ثبت‌شده</h3>`+tb(["شماره","مشتری","عنوان","وضعیت"],O.map(o=>`<tr><td>${o.no}</td><td>${o.cust||"-"}</td><td>${o.title||"-"}</td><td>${ST[o.status]}</td></tr>`).join(""))+`<h3 style="color:#dc2626">⚠️ ضایعات و چاپ خراب</h3>`+tb(["سفارش","مشتری","ابعاد","علت","فیلم (متر)","رنگ سفید (میلی‌لیتر)","هزینه تقریبی","چاپ مجدد"],DFd.map(d=>`<tr><td>${d.ord||"-"}</td><td>${d.cust||"-"}</td><td>${fd(d.h,1)} × ${fd(d.n,0)}</td><td>${d.reason}${d.note?" - "+d.note:""}</td><td>${fd(d.use.film,2)}</td><td>${fd(d.use.white*1000,1)}</td><td>${fa(d.use.cost||0)}</td><td>${rpTxt(d)}</td></tr>`).join(""))+`<h3 style="color:#16a34a">🔁 چاپ مجدد انجام‌شده در این روز</h3>`+tb(["سفارش","مشتری","ابعاد","تعداد کپی"],D.defects.filter(d=>d.reprint&&d.reprint.date==k).map(d=>`<tr><td>${d.ord||"-"}</td><td>${d.cust||"-"}</td><td>${fd(d.h,1)}</td><td>${fd(d.reprint.copies,0)}</td></tr>`).join(""))+`<h3 style="color:#6d28d9">🧾 فاکتورها</h3>`+tb(["ساعت","شماره","مشتری","مبلغ"],I.map(x=>`<tr><td>${tm(x.ts)}</td><td>${x.no||"-"}</td><td>${x.c||"-"}</td><td>${fa(x.total)}</td></tr>`).join(""))+
+ `<p style="font-weight:bold;margin-top:12px">📌 خلاصه: تمام‌شده تولید ${fa(uc)} | خرید ${fa(bt)} | فاکتور ${fa(it)} | ضایعات ${fa(dc)} تومان</p>`}
+const TT={p2:"گزارش موجودی انبار مواد اولیه",p3:"گزارش خرید مواد",p4:"فاکتور مشتری",p5:"گزارش روزانه",p7:"فهرست مشتریان",p8:"تاییدیه سفارش",p9:"بایگانی مشتری",p10:"گزارش ماهانه",p14:"گزارش سود و زیان"};
+function pdf(id){const p=$(id);$("phead").innerHTML=`<b style="font-size:18px;color:#6d28d9">🖨️ ${TT[id]}${id=="p9"&&$("a_cs").value?" — "+$("a_cs").selectedOptions[0].text:""}</b><br>تاریخ: ${new Date().toLocaleDateString("fa-IR-u-ca-persian",{year:"numeric",month:"long",day:"numeric"})} - ساعت ${new Date().toLocaleTimeString("fa-IR")}`;
+ document.body.dataset.pr=id;p.classList.add("printing");window.print();setTimeout(()=>{p.classList.remove("printing");delete document.body.dataset.pr},500)}
+["p2","p3","p5","p7","p8","p9","p10","p14"].forEach(id=>$(id).insertAdjacentHTML("afterbegin",`<p class="noprint"><button class="btn" onclick="pdf('${id}')">📄 خروجی PDF</button></p>`));
+renderRep();renderCusts();
+D.orders=D.orders||[];D.on=D.on||1001;let curId=null,curImg="";
+function fillOcs(){["o_cs","calc_cs","a_cs","lb_ucs","lb_fc"].forEach(id=>{const e=$(id),c=e.value;e.innerHTML='<option value="">— انتخاب مشتری —</option>'+D.cust.map(x=>`<option value="${x.code}">${x.code} - ${x.name}</option>`).join("");e.value=c})}
+function ocust(){const c=D.cust.find(x=>x.code==$("o_cs").value);return c?c.code+" - "+c.name:""}
+function oCur(){return{no:curId?D.orders.find(o=>o.id==curId).no:D.on,date:$("o_dt")?$("o_dt").value:"",cust:ocust(),title:$("o_t").value,h:parseFloat($("o_h").value)||0,n:parseFloat($("o_n").value)||0,px:parseFloat($("o_px").value)||0,dv:$("o_dv").value,nt:$("o_nt").value,img:curImg}}
+function oaItems(){const o=oCur(),cur={title:o.title,h:o.h,n:o.n,img:curImg,no:null};
+ if(curId){const od=D.orders.find(x=>x.id==curId);if(od){const mine=Object.assign({},od,{title:cur.title,h:cur.h,n:cur.n,img:cur.img}),g=od.grp?D.orders.filter(x=>x.grp==od.grp).sort((a,b)=>a.no-b.no).map(x=>x.id==curId?mine:x):[mine];return g.concat(ODR.map(d=>Object.assign({},d,{no:null})))}}
+ const l=ODR.map(d=>Object.assign({},d,{no:null}));if(cur.title||cur.h||cur.n||cur.img||!l.length)l.push(cur);return l}
+function renderOA(){const o=oCur(),L=oaItems(),od=curId?D.orders.find(x=>x.id==curId):null,dt=od?jkey(od.ts):jkey(Date.now()),tm=L.reduce((a,x)=>a+(+x.h||0)*(+x.n||0)/100,0),saved=L.filter(x=>x.no),nos=saved.length?saved.map(x=>x.no):[],nn=L.length-saved.length;
+ let no=nos.length?(nos.length>1?nos[0]+" تا "+nos[nos.length-1]:nos[0]):(nn>1?D.on+" تا "+(D.on+nn-1):D.on);
+ $("oa").innerHTML=`<div class="oh"><div><div style="font-size:20px;font-weight:bold;color:#1d2438">🖨️ تاییدیه سفارش چاپ <span style="color:#c8102e">DTF</span></div><div style="font-size:12px;color:#64748b">لطفاً چیدمان را بررسی و تایید فرمایید</div></div><div style="font-size:13px;text-align:left">شماره سفارش: <b>${String(no).replace(/٬/g,"")}</b><br>تاریخ: ${dt.replace(/\d/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d])}</div></div>
+ <div class="ob"><div><b>مشتری:</b> ${o.cust||"-"}</div><div><b>تاریخ تحویل:</b> ${o.dv||"-"}</div><div><b>تعداد طرح:</b> ${fd(L.length,0)}</div><div><b>متراژ کل:</b> ${tm?fd(tm,2)+" متر":"-"}</div><div style="grid-column:1/-1"><b>توضیحات:</b> ${o.nt||"-"}</div></div>
+ ${L.map((x,i)=>`<div style="border:1px solid #8b93a7;border-radius:8px;padding:8px;margin:10px 0"><div style="font-size:13px"><b>طرح ${fd(i+1,0)}${x.no?" (سفارش "+x.no+")":""}: ${esc(x.title||"-")}</b> — ارتفاع ${x.h?fd(+x.h,1)+" سانتی‌متر":"-"} × ${x.n?fd(+x.n,0):"-"} کپی = ${(+x.h&&+x.n)?fd(x.h*x.n/100,2)+" متر":"-"}</div>${x.img?`<img src="${x.img}">`:'<div style="text-align:center;color:#94a3b8;padding:24px;border:1px dashed #cbd5e1;border-radius:8px;margin-top:6px">عکس چیدمان بارگذاری نشده</div>'}</div>`).join("")}
+ <div class="sg"><span>تایید مشتری: ............................</span><span>امضا / تاریخ: ....................</span></div>`}
+["o_cs","o_t","o_h","o_n","o_px","o_dv","o_nt"].forEach(i=>$(i).addEventListener("input",renderOA));
+let ODR=[];
+const readImg=f=>new Promise(res=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1200/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.82))};im.onerror=()=>res("");im.src=r.result};r.onerror=()=>res("");r.readAsDataURL(f)});
+$("o_img").addEventListener("change",async e=>{const fs=[...e.target.files];if(!fs.length)return;
+ if(fs.length==1){curImg=await readImg(fs[0]);renderOA();return}
+ for(const f of fs){const img=await readImg(f);if(img)ODR.push({title:f.name.replace(/\.[^.]+$/,""),h:"",n:"",px:"",img})}
+ e.target.value="";renderDr();renderOA()});
+function addDraftO(){const o=oCur();if(!(o.title||o.h||o.n||curImg)){alert("اول مشخصات طرح را وارد کنید (عنوان، ارتفاع، تعداد یا عکس).");return}
+ ODR.push({title:o.title,h:o.h||"",n:o.n||"",px:o.px||"",img:curImg});curImg="";["o_t","o_h","o_n","o_px","o_img"].forEach(i=>$(i).value="");renderDr();renderOA()}
+function drSet(i,k,v){ODR[i][k]=k=="title"?v:(v===""?"":parseFloat(v)||0);const e=$("drm_"+i);if(e)e.textContent=fd((+ODR[i].h||0)*(+ODR[i].n||0)/100,2);renderOA()}
+function drDel(i){ODR.splice(i,1);renderDr();renderOA()}
+function renderDr(){$("o_dr").innerHTML=ODR.length?`<div style="border:2px dashed #6d28d9;border-radius:10px;padding:10px;margin-top:10px"><b style="color:#6d28d9">📑 طرح‌های این سفارش (${fd(ODR.length,0)} طرح)</b> <small style="color:#64748b">— هر طرح با شماره سفارش جدا ثبت می‌شود و همه در یک برگه تایید می‌آیند. مقدار هر طرح را پر کنید.</small>
+ <table class="lst" style="width:100%;border-collapse:collapse;margin-top:8px"><thead><tr><th>#</th><th>عکس</th><th>عنوان</th><th>ارتفاع (سانتی‌متر)</th><th>تعداد کپی</th><th>پیکسل</th><th>متراژ</th><th></th></tr></thead><tbody>${ODR.map((d,i)=>`<tr><td>${fd(i+1,0)}</td><td>${d.img?`<img class="thm" src="${d.img}">`:"-"}</td><td><input style="width:130px;direction:rtl" value="${esc(d.title)}" oninput="drSet(${i},'title',this.value)"></td><td><input type="number" value="${d.h}" oninput="drSet(${i},'h',this.value)"></td><td><input type="number" value="${d.n}" oninput="drSet(${i},'n',this.value)"></td><td><input type="number" value="${d.px}" oninput="drSet(${i},'px',this.value)"></td><td id="drm_${i}">${fd((+d.h||0)*(+d.n||0)/100,2)}</td><td><button class="btn dl" onclick="drDel(${i})">🗑</button></td></tr>`).join("")}</tbody></table></div>`:""}
+function newOrder(){curId=null;curImg="";ODR=[];renderDr();["o_t","o_h","o_n","o_px","o_nt","o_img"].forEach(i=>$(i).value="");$("o_cs").value="";$("o_dv").value="";renderOA();renderOL()}
+function saveOrder(){const o=oCur(),cur={title:o.title,h:o.h,n:o.n,px:o.px,img:curImg},hasCur=!!(cur.title||cur.h||cur.n||cur.img);
+ if(!o.cust&&!o.title&&!ODR.length){alert("مشتری یا عنوان سفارش را وارد کنید.");return}
+ const base={cs:$("o_cs").value,cust:o.cust,dv:o.dv,nt:o.nt},mk=(it,i,grp)=>{const id=Date.now()+i;D.orders.unshift(Object.assign({id,no:D.on++,ts:id,status:"w"},base,{title:it.title||("طرح "+(i+1)),h:+it.h||0,n:+it.n||0,px:+it.px||0,img:it.img||"",grp}));return id};
+ let made=[];
+ if(curId){const x=D.orders.find(v=>v.id==curId);Object.assign(x,{cs:base.cs,cust:o.cust,title:o.title,h:o.h,n:o.n,px:o.px,dv:o.dv,nt:o.nt,img:curImg});
+  if(ODR.length){x.grp=x.grp||x.id;ODR.forEach((it,i)=>made.push(mk(it,i,x.grp)))}}
+ else{const items=ODR.slice();if(hasCur||!items.length)items.push(cur);const grp=items.length>1?Date.now():undefined;items.forEach((it,i)=>made.push(mk(it,i,grp)));curId=made[0]}
+ const n=made.length;ODR=[];libSyncAll();save();if(n>1)loadOrder(curId);renderOL();renderDr();renderOA();renderRep();ordWarn();
+ if(n>0)alert(n>1?(n+" طرح به‌صورت "+n+" سفارش جدا ثبت شد (در یک گروه)."):"سفارش ثبت شد.")}
+function loadOrder(id){const o=D.orders.find(x=>x.id==id);curId=id;curImg=o.img||"";ODR=[];renderDr();$("o_cs").value=o.cs||"";$("o_t").value=o.title;$("o_h").value=o.h||"";$("o_n").value=o.n||"";$("o_px").value=o.px||"";$("o_dv").value=o.dv||"";$("o_nt").value=o.nt||"";$("o_img").value="";renderOA();window.scrollTo(0,0)}
+function stOrder(id,v){const o=D.orders.find(x=>x.id==id);o.status=v;if(v=="pr"||v=="done")o.pdate=o.pdate||jkey(Date.now());else delete o.pdate;if(v=="done")o.doneAt=o.doneAt||jkey(Date.now());else delete o.doneAt;if(v=="pr"){delete o.noAuto;ordAutoDone()}save();renderRep();renderOL();renderWork()}
+function setPdate(id,v){const o=D.orders.find(x=>x.id==id);o.pdate=nk(nd(v))||jkey(Date.now());save();renderOL();renderWork();renderRep()}
+function delOrder(id){const o=D.orders.find(x=>x.id==id);if(o)delOrderAll(o.no)}
+const ordM=o=>(o.h||0)*(o.n||0)/100;
+function ordTot(){const open=D.orders.filter(o=>!isPr(o)),t=open.reduce((a,o)=>a+ordM(o),0),stock=D.inv.film||0;return{all:D.orders.reduce((a,o)=>a+ordM(o),0),open:t,stock,short:t-stock,rl:parseFloat($("rl").value)||100}}
+function ordWarn(){const t=ordTot();if(t.short>1e-9)alert("⚠️ جمع متراژ سفارش‌های باز ("+fd(t.open,2)+" متر) از موجودی رول انبار ("+fd(t.stock,2)+" متر) بیشتر است.\nکمبود: "+fd(t.short,2)+" متر ≈ "+fd(Math.ceil(t.short/t.rl),0)+" رول")}
+function reqRoll(n){DR.push({m:"film",q:n});renderDraft();document.querySelector("[data-p=p3]").click()}
+function renderOSum(){const t=ordTot(),card=(l,v,c)=>`<div class="sc" style="min-width:150px"><div style="font-size:12px;color:#64748b">${l}</div><div class="v"${c?` style="color:${c}"`:""}>${v}</div></div>`;
+ $("o_sum").innerHTML=`<div class="stk" style="margin-bottom:10px">${card("جمع متراژ همه سفارش‌ها",fd(t.all,2)+" متر")}${card("جمع سفارش‌های باز (چاپ‌نشده)",fd(t.open,2)+" متر")}${card("موجودی رول انبار",fd(t.stock,2)+" متر",t.stock<0?"#dc2626":"")}</div>`+
+ (t.short>1e-9?`<div style="background:#fee2e2;border:2px solid #dc2626;border-radius:10px;padding:10px;margin-bottom:10px;font-size:13px">⚠️ <b>موجودی رول کافی نیست.</b> جمع متراژ سفارش‌های باز <b>${fd(t.open,2)}</b> متر از موجودی انبار (<b>${fd(t.stock,2)}</b> متر) بیشتر است؛ کمبود <b>${fd(t.short,2)}</b> متر، یعنی حدود <b>${fd(Math.ceil(t.short/t.rl),0)}</b> رول. <button class="btn noprint" onclick="reqRoll(${Math.ceil(t.short/t.rl)})">📨 ثبت درخواست خرید رول</button></div>`:
+ `<div style="background:#dcfce7;border:1px solid #16a34a;border-radius:10px;padding:10px;margin-bottom:10px;font-size:13px">✅ موجودی رول برای سفارش‌های باز کافی است (باقی‌مانده ${fd(-t.short,2)} متر).</div>`)}
+function renderOL(){const stock=D.inv.film||0,open=D.orders.filter(o=>!isPr(o)).sort((a,b)=>a.no-b.no);let c=0;const over={};open.forEach(o=>{c+=ordM(o);if(c>stock+1e-9)over[o.id]=1});
+ $("ol").innerHTML=D.orders.filter(o=>o.status!="done"||showArch).map(o=>`<tr><td>${o.no}</td><td>${jkey(o.ts)}</td><td>${o.cust||"-"}</td><td>${o.title||"-"}${o.grp?`<br><small style="color:#6d28d9">🗂 گروه ${fd(D.orders.filter(x=>x.grp==o.grp).length,0)} طرحی</small>`:""}${D.defects.some(d=>d.ord==o.no)?`<br><small style="color:#dc2626">⚠️ ${fd(D.defects.filter(d=>d.ord==o.no).reduce((a,d)=>a+d.n,0),0)} کپی خراب</small>`:""}${D.defects.some(d=>d.ord==o.no&&d.reprint)?`<br><small style="color:#16a34a">🔁 ${fd(D.defects.filter(d=>d.ord==o.no&&d.reprint).reduce((a,d)=>a+d.reprint.copies,0),0)} کپی چاپ مجدد شد</small>`:""}</td><td>${o.img?`<img class="thm" src="${o.img}">`:"-"}</td><td>${fd(ordM(o),2)}${over[o.id]?'<br><small style="color:#dc2626">⚠️ بیش از موجودی رول</small>':""}</td><td>${o.calc?fa(o.calc.price):"-"}</td><td><select class="sel" style="width:130px" onchange="stOrder(${o.id},this.value)">${Object.keys(ST).map(k=>`<option value="${k}"${o.status==k?" selected":""}>${ST[k]}</option>`).join("")}</select>${isPr(o)?`<br><small>تاریخ چاپ: <input style="width:90px" value="${o.pdate||jkey(o.ts)}" onchange="setPdate(${o.id},this.value)"></small>`:""}</td><td>${o.status=="pr"?`<button class="btn gr" onclick="stOrder(${o.id},'done')" title="تکمیل و انتقال به بایگانی مشتری">✅ تکمیل</button> `:""}<button class="btn" style="background:#8b5cf6" onclick="libFromOrder(${o.id})" title="ذخیره در کتابخانه طرح">📚</button> <button class="btn" style="background:#f59e0b" onclick="dfOpen(${o.no})">⚠️ خرابی</button> <button class="btn" style="background:#0ea5e9" onclick="fillCalc(${o.id})">🧮 محاسبه</button> <button class="btn gr" onclick="fillInvGroup(${o.id})">🧾 فاکتور</button> <button class="btn" onclick="loadOrder(${o.id})">👁 نمایش</button> <button class="btn dl" onclick="delOrder(${o.id})">🗑 حذف کامل</button></td></tr>`).join("")||'<tr><td colspan="9">سفارشی در لیست جاری نیست</td></tr>';$("o_archn").textContent="("+fd(D.orders.filter(o=>o.status=="done").length,0)+")";renderOSum()}
+async function oShot(){if(!window.html2canvas)return alert("ابزار اسکرین‌شات بارگذاری نشد (اینترنت لازم است). از گزینه خروجی PDF استفاده کنید.");
+ try{const c=await html2canvas($("oa"),{scale:2,backgroundColor:"#fff"});c.toBlob(b=>dl(b,"order-"+(oCur().no)+".png"))}catch(e){alert("ساخت تصویر ناموفق بود.")}}
+async function backup(){await IMGREADY;const data={app:"dtf",v:1,at:Date.now(),D,calc:localStorage.getItem("dtfcalc")};dl(new Blob([JSON.stringify(data)],{type:"application/json"}),"dtf-backup-"+jkey(Date.now()).replace(/\//g,"-")+".json")}
+$("rf").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{let d;try{d=JSON.parse(String(r.result).replace(/^\uFEFF/,""))}catch(x){alert("بازیابی ناموفق بود: "+rsErr(x));return}
+ if(!confirm("اطلاعات فعلی با محتوای این فایل جایگزین می‌شود. ادامه؟"))return;try{await applyRestore(d);location.reload()}catch(x){alert("بازیابی ناموفق بود: "+rsErr(x))}};r.onerror=()=>alert("خواندن فایل ممکن نشد.");r.readAsText(f);e.target.value=""});
+fillOcs();renderOL();renderOA();
+D.calcs=D.calcs||[];
+const MON=["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
+const nk=k=>{const p=k.split("/");return p.length==3?p[0]+"/"+p[1].padStart(2,"0")+"/"+p[2].padStart(2,"0"):k};
+const cname=c=>{const x=D.cust.find(v=>v.code==c);return x?x.code+" - "+x.name:"-"};
+function saveCalc(){const c=$("calc_cs").value;if(!c){alert("ابتدا مشتری را انتخاب کنید.");return}if(!LAST.len){alert("ابتدا طرح را وارد کنید.");return}
+ D.calcs.unshift({id:Date.now(),ts:Date.now(),cs:c,ord:curCalcOrd,h:LAST.h,n:LAST.n,px:parseFloat($("px").value)||0,len:LAST.len,cost:LAST.cost,price:LAST.price});save();renderArc();alert("در بایگانی مشتری ثبت شد.")}
+function openArc(c){$("a_cs").value=c;document.querySelector("[data-p=p9]").click();renderArc()}
+function delCalc(id){const x=D.calcs.find(v=>v.id==id);if(!x)return;if(x.ord&&D.orders.some(o=>o.no==x.ord)){delOrderAll(x.ord);return}if(!confirm("حذف این محاسبه؟"))return;D.calcs=D.calcs.filter(v=>v.id!=id);save();renderArc()}
+function renderArc(){const c=$("a_cs").value,box=$("ar");if(!c){box.innerHTML='<p style="color:#64748b">یک مشتری انتخاب کنید.</p>';return}
+ const O=D.orders.filter(o=>o.cs==c&&o.status!="done"),Od=D.orders.filter(o=>o.cs==c&&o.status=="done"),C=D.calcs.filter(x=>x.cs==c),I=D.log.filter(x=>x.k=="inv"&&x.cs==c),it=I.reduce((a,x)=>a+(x.total||0),0);
+ const tb=(h,r)=>`<table class="lst" style="width:100%;border-collapse:collapse"><thead><tr>${h.map(x=>"<th>"+x+"</th>").join("")}</tr></thead><tbody>${r||`<tr><td colspan="${h.length}">موردی ثبت نشده</td></tr>`}</tbody></table>`;
+ box.innerHTML=`<h2>👤 ${cname(c)}</h2><p style="font-size:13px">تعداد سفارش: <b>${fd(O.length+Od.length,0)}</b> (تکمیل‌شده: <b>${fd(Od.length,0)}</b>) | محاسبه قیمت: <b>${fd(C.length,0)}</b> | فاکتور: <b>${fd(I.length,0)}</b> | جمع فاکتورها: <b>${fa(it)} تومان</b></p>
+ <h3 style="color:#6d28d9">📝 سفارش‌ها</h3>`+tb(["شماره","تاریخ","عنوان","ارتفاع × تعداد","چیدمان","قیمت نهایی (تومان)","وضعیت",""],O.map(o=>`<tr><td>${o.no}</td><td>${jkey(o.ts)}</td><td>${o.title||"-"}</td><td>${fd(o.h,1)} × ${fd(o.n,0)}</td><td>${o.img?`<img class="thm" src="${o.img}">`:"-"}</td><td>${o.calc?fa(o.calc.price):"-"}</td><td>${ST[o.status]}</td><td class="noprint"><button class="btn dl" onclick="delOrderAll(${o.no})">🗑</button></td></tr>`).join(""))+
+ `<h3 style="color:#16a34a">✅ سفارش‌های تکمیل‌شده (بایگانی)</h3>`+tb(["شماره","تاریخ تکمیل","عنوان","ابعاد","چیدمان","درآمد فاکتور (تومان)",""],Od.map(o=>`<tr><td>${o.no}</td><td>${o.doneAt||"-"}</td><td>${esc(o.title||"-")}</td><td>${fd(o.h,1)} × ${fd(o.n,0)}</td><td>${o.img?`<img class="thm" src="${o.img}">`:"-"}</td><td>${fa(ordRev(o))}</td><td class="noprint"><button class="btn" onclick="ordRestore(${o.id})">↩️ بازگرداندن به ثبت سفارش</button> <button class="btn" onclick="loadOrder(${o.id});go('p8')">👁</button> <button class="btn dl" onclick="delOrderAll(${o.no})">🗑</button></td></tr>`).join(""))+
+ `<h3 style="color:#dc2626">⚠️ ضایعات و چاپ خراب</h3>`+tb(["تاریخ","سفارش","ابعاد","علت","هزینه تقریبی","چاپ مجدد"],D.defects.filter(d=>d.cs==c).map(d=>`<tr><td>${d.date}</td><td>${d.ord||"-"}</td><td>${fd(d.h,1)} × ${fd(d.n,0)}</td><td>${d.reason}${d.note?" - "+d.note:""}</td><td>${fa(d.use.cost||0)}</td><td>${rpTxt(d)}</td></tr>`).join(""))+`<h3 style="color:#6d28d9">🧮 محاسبه قیمت تمام‌شده</h3>`+tb(["تاریخ","سفارش","ارتفاع","تعداد","متراژ","قیمت تمام‌شده","قیمت نهایی","هر کپی (نهایی)","",],C.map(x=>`<tr><td>${jkey(x.ts)}</td><td>${x.ord||"-"}</td><td>${fd(x.h,1)}</td><td>${fd(x.n,0)}</td><td>${fd(x.len,2)}</td><td>${fa(x.cost)}</td><td>${fa(x.price)}</td><td>${fa(x.price/(x.n||1))}</td><td class="noprint"><button class="btn dl" onclick="delCalc(${x.id})">🗑</button></td></tr>`).join(""))+
+ `<h3 style="color:#6d28d9">🧾 فاکتورها</h3>`+tb(["تاریخ","شماره","سفارش","متراژ","مبلغ (تومان)",""],I.map(x=>`<tr><td>${jkey(x.ts)}</td><td>${x.no||"-"}</td><td>${(x.ord||[]).length?x.ord.join("، "):"-"}</td><td>${x.m?fd(x.m,2):"-"}</td><td>${fa(x.total)}</td><td class="noprint"><button class="btn" onclick="editInvoice(${x.ts})">✏️</button> <button class="btn dl" onclick="delInvoice(${x.ts})">🗑</button></td></tr>`).join(""))}
+$("a_cs").addEventListener("change",renderArc);
+$("m_m").innerHTML=MON.map((n,i)=>`<option value="${i+1}">${n}</option>`).join("");
+{const k=jkey(Date.now());$("m_y").value=k.slice(0,4);$("m_m").value=+k.slice(5,7)}
+["m_v","m_y","m_m"].forEach(i=>$(i).addEventListener("input",renderMon));
+function prCalc(){const t=num("pr_n")*num("pr_p");if($("pr_p").value)$("pr_p").value=fmt(num("pr_p"));if(t>0)$("press").value=fmt(t);icalc()}
+$("pr_n").addEventListener("input",prCalc);$("pr_p").addEventListener("input",prCalc);
+function usdSeries(day,y,mo){const N=day?30:12,sum=Array(N).fill(0),cnt=Array(N).fill(0),R=D.rates||{},pre=day?y+"/"+mo+"/":y+"/";
+ const add=(key,v)=>{key=nk(key);if(!v||!key.startsWith(pre))return;const i=(day?+key.slice(8):+key.slice(5,7))-1;if(i<0||i>=N)return;sum[i]+=v;cnt[i]++};
+ Object.keys(R).forEach(k=>add(k,R[k]));
+ D.buys.forEach(b=>{if(b.rate){const k=nk(b.ts?jkey(b.ts):nd(b.d||""));if(!R[k])add(k,b.rate)}});
+ return sum.map((v,i)=>cnt[i]?v/cnt[i]:null)}
+function usdChart(day,y,mo){const A=usdSeries(day,y,mo),N=A.length,pts=A.map((v,i)=>v?{i,v}:null).filter(Boolean);
+ const head=`<h3 style="color:#0e7490">💵 نمودار نرخ دلار — ${day?MON[+mo-1]+" "+y:"سال "+y}</h3>`;
+ if(!pts.length)return head+'<p style="color:#64748b;font-size:13px">نرخی برای این بازه ثبت نشده است. نرخ دلار را هر روز در کادر سبز منوی کناری بنویسید (یا خرید با نرخ آن روز ثبت کنید).</p>';
+ const vs=pts.map(p=>p.v),mn=Math.min(...vs),mx=Math.max(...vs),pad=(mx-mn)*0.15||mx*0.02||1,lo=mn-pad,hi=mx+pad,W=760,H=260,L=74,R=14,T=16,B=34,pw=W-L-R,ph=H-T-B,X=i=>L+pw*i/(N-1),Y=v=>T+ph*(1-(v-lo)/(hi-lo));
+ let g="";for(let t=0;t<=4;t++){const v=lo+(hi-lo)*t/4;g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#9aa6b8" stroke-opacity=".5"/><text x="${L-6}" y="${Y(v)+4}" font-size="10" text-anchor="end" fill="#64748b">${fa(v)}</text>`}
+ for(let i=0;i<N;i++)if(!day||i%2==0||i==N-1)g+=`<text x="${X(i)}" y="${H-B+16}" font-size="10" text-anchor="middle" fill="#64748b">${day?fd(i+1,0):MON[i]}</text>`;
+ g+=`<polyline fill="none" stroke="#0e7490" stroke-width="2.5" points="${pts.map(p=>X(p.i)+","+Y(p.v)).join(" ")}"/>`+pts.map(p=>`<circle cx="${X(p.i)}" cy="${Y(p.v)}" r="4" fill="#0e7490"><title>${day?"روز "+(p.i+1):MON[p.i]}: ${fa(p.v)} تومان</title></circle>`).join("");
+ const first=pts[0].v,last=pts[pts.length-1].v,ch=first?(last-first)/first*100:0,avg=vs.reduce((a,b)=>a+b,0)/vs.length;
+ return head+`<p style="font-size:13px">کمترین: <b>${fa(mn)}</b> | بیشترین: <b>${fa(mx)}</b> | میانگین: <b>${fa(avg)}</b> | آخرین: <b>${fa(last)}</b> تومان | تغییر از اولین ثبت: <b style="color:${ch>0?"#dc2626":"#16a34a"}">${ch>0?"+":""}${fd(ch,1)}٪</b></p><svg viewBox="0 0 ${W} ${H}" style="width:100%;direction:ltr;background:#fff;border:1px solid #9aa6b8;border-radius:10px">${g}</svg>
+ <table class="lst" style="width:100%;border-collapse:collapse;margin-top:10px"><thead><tr><th>${day?"روز":"ماه"}</th><th>نرخ دلار (تومان)</th></tr></thead><tbody>${pts.map(p=>`<tr><td>${day?fd(p.i+1,0):MON[p.i]}</td><td>${fa(p.v)}</td></tr>`).join("")}</tbody></table>`}
+function renderMon(){const day=$("m_v").value=="d",y=nd($("m_y").value),mo=String(+$("m_m").value).padStart(2,"0");
+ const N=day?30:12,lab=i=>day?String(i+1):MON[i],pre=day?y+"/"+mo+"/":y+"/";
+ const idx=key=>{key=nk(key);return key.startsWith(pre)?(day?+key.slice(8):+key.slice(5,7))-1:-1};
+ const S=[0,0,0,0].map(()=>Array(N).fill(0));let no=0,ni=0;
+ D.log.forEach(x=>{const i=idx(x.dk||jkey(x.ts));if(i<0||i>=N)return;if(x.k=="inv"){S[0][i]+=x.total||0;ni++}if(x.k=="use"&&!x.df)S[2][i]+=x.cost||0});
+ D.buys.forEach(b=>{const i=idx(b.ts?jkey(b.ts):nd(b.d||""));if(i>=0&&i<N)S[1][i]+=b.q*b.p});
+ D.orders.forEach(o=>{if(idx(jkey(o.ts))>=0)no++});D.defects.forEach(d=>{const i=idx(d.date);if(i>=0&&i<N)S[3][i]+=d.use.cost||0});
+ const names=["فروش (فاکتور)","خرید مواد","هزینه تمام‌شده تولید","ضایعات (چاپ خراب)"],col=["#16a34a","#f59e0b","#6d28d9","#dc2626"],tot=S.map(a=>a.reduce((p,q)=>p+q,0));
+ const mx=Math.max(1,...S.flat()),W=760,H=300,L=62,R=14,T=16,B=36,pw=W-L-R,ph=H-T-B,X=i=>L+pw*i/(N-1),Y=v=>T+ph*(1-v/mx);
+ const sh=v=>v>=1e6?fd(v/1e6,1)+" م":v>=1e3?fd(v/1e3,0)+" هـ":fd(v,0);
+ let g="";for(let t=0;t<=4;t++){const v=mx*t/4;g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#9aa6b8"/><text x="${L-6}" y="${Y(v)+4}" font-size="10" text-anchor="end" fill="#64748b">${sh(v)}</text>`}
+ for(let i=0;i<N;i++)if(!day||i%2==0||i==N-1)g+=`<text x="${X(i)}" y="${H-B+16}" font-size="10" text-anchor="middle" fill="#64748b">${lab(i)}</text>`;
+ S.forEach((a,k)=>{g+=`<polyline fill="none" stroke="${col[k]}" stroke-width="2.5" points="${a.map((v,i)=>X(i)+","+Y(v)).join(" ")}"/>`+a.map((v,i)=>v?`<circle cx="${X(i)}" cy="${Y(v)}" r="3.5" fill="${col[k]}"><title>${names[k]} - ${lab(i)}: ${fa(v)}</title></circle>`:"").join("")});
+ const leg=names.map((n,k)=>`<span style="margin-left:14px;font-size:12px"><span style="display:inline-block;width:14px;height:4px;background:${col[k]};vertical-align:middle"></span> ${n}</span>`).join("");
+ const rows=S[0].map((_,i)=>S[0][i]||S[1][i]||S[2][i]||S[3][i]?`<tr><td>${lab(i)}</td><td>${fa(S[0][i])}</td><td>${fa(S[1][i])}</td><td>${fa(S[2][i])}</td><td>${fa(S[3][i])}</td></tr>`:"").join("");
+ const DL=D.defects.filter(d=>idx(d.date)>=0).sort((a,b)=>a.ts-b.ts),DT=`<h3 style="color:#dc2626">⚠️ ضایعات و چاپ خراب این بازه</h3><table class="lst" style="width:100%;border-collapse:collapse"><thead><tr><th>تاریخ</th><th>سفارش</th><th>مشتری</th><th>ابعاد</th><th>علت</th><th>هزینه تقریبی</th><th>چاپ مجدد</th></tr></thead><tbody>${DL.map(d=>`<tr><td>${d.date}</td><td>${d.ord||"-"}</td><td>${d.cust||"-"}</td><td>${fd(d.h,1)} × ${fd(d.n,0)}</td><td>${d.reason}</td><td>${fa(d.use.cost||0)}</td><td>${rpTxt(d)}</td></tr>`).join("")||'<tr><td colspan="7">خرابی ثبت نشده</td></tr>'}</tbody></table>`;const OL=D.orders.filter(o=>idx(jkey(o.ts))>=0).sort((a,b)=>a.no-b.no),OT=`<h3 style="color:#6d28d9">📋 سفارش‌های این بازه</h3><table class="lst" style="width:100%;border-collapse:collapse"><thead><tr><th>شماره</th><th>تاریخ</th><th>مشتری</th><th>عنوان</th><th>وضعیت</th><th>مبلغ فاکتور</th><th class="noprint"></th></tr></thead><tbody>${OL.map(o=>{const t=D.log.filter(x=>x.k=="inv"&&(x.ord||[]).includes(o.no)).reduce((a,x)=>a+(x.total||0),0);return `<tr><td>${o.no}</td><td>${jkey(o.ts)}</td><td>${o.cust||"-"}</td><td>${o.title||"-"}</td><td>${ST[o.status]}</td><td>${t?fa(t):"-"}</td><td class="noprint"><button class="btn dl" onclick="delOrderAll(${o.no})">🗑 حذف کامل</button></td></tr>`}).join("")||'<tr><td colspan="7">سفارشی در این بازه نیست</td></tr>'}</tbody></table>`;
+ $("mr").innerHTML=`<h2>📈 ${day?MON[+mo-1]+" "+$("m_y").value:"سال "+$("m_y").value}</h2>
+ <p style="font-size:13px">جمع فروش: <b>${fa(tot[0])}</b> | خرید مواد: <b>${fa(tot[1])}</b> | هزینه تمام‌شده تولید: <b>${fa(tot[2])}</b> | ضایعات: <b>${fa(tot[3])}</b> تومان | سفارش‌ها: <b>${fd(no,0)}</b> | فاکتورها: <b>${fd(ni,0)}</b></p>
+ <div style="margin:6px 0">${leg}</div><svg viewBox="0 0 ${W} ${H}" style="width:100%;direction:ltr;background:#fff;border:1px solid #9aa6b8;border-radius:10px">${g}</svg>
+ <table class="lst" style="width:100%;border-collapse:collapse;margin-top:12px"><thead><tr><th>${day?"روز":"ماه"}</th><th>فروش</th><th>خرید مواد</th><th>هزینه تولید</th><th>ضایعات</th></tr></thead><tbody>${rows||'<tr><td colspan="5">داده‌ای برای این بازه ثبت نشده</td></tr>'}</tbody></table>`+usdChart(day,y,mo)+DT+OT}
+
+const UQ={white:"لیتر",powder:"کیلو",film:"رول",cy:"لیتر",mg:"لیتر",yl:"لیتر",bk:"لیتر"};
+const ORD=["white","powder","film","cy","mg","yl","bk"];
+$("q_m").innerHTML=ORD.map(k=>`<option value="${k}">${MN[k]} (${UQ[k]})</option>`).join("");
+$("b_m").innerHTML=ORD.map(k=>`<option value="${k}">${MN[k]} (${UQ[k]})</option>`).join("");
+$("q_m").addEventListener("change",()=>$("q_u").textContent=UQ[$("q_m").value]);$("q_u").textContent=UQ.white;
+let DR=[];
+function addDraft(){const q=parseFloat($("q_q").value)||0;if(!q)return;DR.push({m:$("q_m").value,q});$("q_q").value="";renderDraft()}
+function renderDraft(){$("q_l").innerHTML=DR.map((d,i)=>`<tr><td>${MN[d.m]}</td><td>${fd(d.q,2)} ${UQ[d.m]}</td><td><button class="btn dl" onclick="DR.splice(${i},1);renderDraft()">🗑</button></td></tr>`).join("")||'<tr><td colspan="3">موردی اضافه نشده</td></tr>'}
+function submitReq(){if(!DR.length){alert("حداقل یک مورد اضافه کنید.");return}
+ D.reqs.unshift({id:Date.now(),no:D.rn++,ts:Date.now(),note:$("q_n").value,status:"w",items:DR.map(d=>({m:d.m,q:d.q,done:false}))});DR=[];$("q_n").value="";save();renderDraft();renderReqs()}
+function chk(r){if(r.items.every(x=>x.done||x.cancel)){r.status="done";r.doneTs=Date.now()}}
+function doBuy(r,i){const it=r.items[i];if(it.done||it.cancel)return true;
+ const rem=it.q-(it.got||0),qty=parseFloat($(`rq_${r.id}_${i}`).value)||rem,usd=parseFloat($(`rp_${r.id}_${i}`).value)||0,R=parseFloat($("usd").value)||0,p=usd*R;if(!usd||!R||qty<=0)return false;
+ const id=Date.now()+i,dt=nk(nd($("rd_"+r.id).value))||jkey(Date.now());
+ D.buys.unshift({id,m:it.m,q:qty,p,usd,rate:R,d:dt,s:$("rs_"+r.id).value,ts:Date.now(),req:r.no});
+ D.inv[it.m]+=it.m=="film"?qty*(parseFloat($("rl").value)||100):qty;
+ const pm={white:"pw",film:"pf",powder:"pp"}[it.m];if(pm){$(pm).value=usd;calc()}
+ it.got=(it.got||0)+qty;it.bids=(it.bids||[]).concat(id);it.bid=id;it.p=p;it.usd=usd;
+ if(it.got>=it.q)it.done=true;$(`rq_${r.id}_${i}`).value="";$(`rp_${r.id}_${i}`).value="";chk(r);return true}
+function closeItem(rid,i){const r=D.reqs.find(x=>x.id==rid),it=r.items[i],got=it.got||0;
+ if(!confirm(got?"این قلم با مقدار خریداری‌شده بسته شود؟ (باقی‌مانده خریداری نمی‌شود)":"این قلم خریداری نشد و لغو شود؟"))return;
+ if(got)it.done=true;else it.cancel=true;chk(r);save();renderReqs();renderRep()}
+function afterBuy(){save();renderInv();renderBuys();renderReqs();renderRep()}
+function buyItem(rid,i){const r=D.reqs.find(x=>x.id==rid);if(!doBuy(r,i)){alert("قیمت واحد (دلار) را وارد کنید.");return}afterBuy()}
+function buyAll(rid){const r=D.reqs.find(x=>x.id==rid);let miss=0;r.items.forEach((it,i)=>{if(!it.done&&!it.cancel&&!doBuy(r,i))miss++});afterBuy();if(miss)alert(miss+" مورد بدون قیمت ماند و همچنان منتظر خرید است.")}
+function delReq(rid){const r=D.reqs.find(x=>x.id==rid);if(!confirm("حذف این درخواست؟"+(r.items.some(x=>x.done)?" (مواد خریداری‌شده از انبار کم نمی‌شود؛ برای آن از سابقه خرید حذف کنید.)":"")))return;D.reqs=D.reqs.filter(x=>x.id!=rid);save();renderReqs()}
+function renderReqs(){const keep={};document.querySelectorAll("#rq_p input").forEach(e=>{if(e.value!=="")keep[e.id]=e.value});
+ const pend=D.reqs.filter(r=>r.status!="done"),done=D.reqs.filter(r=>r.status=="done");
+ const row=(r,it,i)=>{const got=it.got==null?(it.done?it.q:0):it.got,rem=Math.max(0,it.q-got);let st,qc,pc;
+  if(it.cancel){st="❌ خریداری نشد (لغو شد)";qc="-";pc="-"}
+  else if(it.done){st="✅ به انبار منتقل شد"+(got<it.q-1e-9?" (کمتر از درخواست)":got>it.q+1e-9?" (بیشتر از درخواست)":"");qc=fd(got,2)+" "+UQ[it.m];pc=it.usd?fd(it.usd,2)+" $":fa(it.p||0)}
+  else{st=`⏳ منتظر خرید${got?`<br><small>خریداری‌شده ${fd(got,2)} از ${fd(it.q,2)} — باقی‌مانده ${fd(rem,2)}</small>`:""}<br><button class="btn gr" onclick="buyItem(${r.id},${i})">✅ خریداری شد</button> <button class="btn dl" onclick="closeItem(${r.id},${i})">${got?"✖ بستن قلم":"✖ خریداری نشد"}</button>`;
+   qc=`<input id="rq_${r.id}_${i}" type="number" step="0.01" placeholder="${fd(rem,2)}" style="width:80px"> ${UQ[it.m]}`;pc=`<input step="0.01" id="rp_${r.id}_${i}" type="number" placeholder="دلار">`}
+  return `<tr><td>${MN[it.m]}</td><td>${fd(it.q,2)} ${UQ[it.m]}</td><td>${qc}</td><td>${pc}</td><td>${st}</td></tr>`};
+ $("rq_p").innerHTML=pend.map(r=>`<div style="border:1px solid #9aa6b8;border-radius:10px;padding:10px;margin-bottom:10px"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px"><b>📨 درخواست شماره ${r.no}</b><span style="font-size:12px;color:#64748b">${jkey(r.ts)}${r.note?" - "+r.note:""}</span></div>
+ <table class="lst" style="width:100%;border-collapse:collapse"><thead><tr><th>ماده</th><th>مقدار درخواستی</th><th>مقدار خرید این‌بار<br><small>(خالی = باقی‌مانده)</small></th><th>قیمت واحد (دلار)</th><th>وضعیت</th></tr></thead><tbody>${r.items.map((it,i)=>row(r,it,i)).join("")}</tbody></table>
+ <div class="f noprint" style="margin-top:8px;flex-wrap:wrap"><label>تاریخ خرید</label><input id="rd_${r.id}" type="text" style="width:110px" value="${jkey(Date.now())}"><label>فروشنده</label><input id="rs_${r.id}" type="text" style="direction:rtl;width:140px"><button class="btn gr" onclick="buyAll(${r.id})">✅ همه خریداری شد</button><button class="btn" onclick="printReqs(${r.id})">📄 PDF</button><button class="btn dl" onclick="delReq(${r.id})">🗑 حذف</button></div></div>`).join("")||'<p style="color:#64748b">درخواستی در انتظار خرید نیست.</p>';
+ Object.entries(keep).forEach(([id,v])=>{const e=$(id);if(e)e.value=v});
+ const itx=i=>{const g=i.got==null?(i.done?i.q:0):i.got;return MN[i.m]+" "+(i.cancel?"❌ خریداری نشد":fd(g,2)+(g!=i.q?" از "+fd(i.q,2):"")+" "+UQ[i.m])};
+ $("rq_d").innerHTML=`<table class="lst" style="width:100%;border-collapse:collapse"><thead><tr><th>شماره</th><th>تاریخ درخواست</th><th>اقلام</th><th>تاریخ تکمیل</th><th class="noprint"></th></tr></thead><tbody>${done.map(r=>`<tr><td>${r.no}</td><td>${jkey(r.ts)}</td><td>${r.items.map(itx).join("، ")}</td><td>${r.doneTs?jkey(r.doneTs):"-"}</td><td class="noprint"><button class="btn dl" onclick="delReq(${r.id})">🗑</button></td></tr>`).join("")||'<tr><td colspan="5">موردی نیست</td></tr>'}</tbody></table>`;
+ const n=pend.length;document.querySelector("[data-p=p3]").textContent="🛒 خرید مواد"+(n?" ("+fd(n,0)+" منتظر)":"")}
+renderDraft();renderReqs();
+let curOrds=[];
+function fillFord(){const e=$("f_ord"),c=e.value;e.innerHTML='<option value="">— انتخاب سفارش —</option>'+D.orders.filter(o=>o.status!="done"&&(!$("cs").value||o.cs==$("cs").value)).map(o=>{const inv=D.log.some(x=>x.k=="inv"&&(x.ord||[]).includes(o.no));return `<option value="${o.id}">${o.no} - ${esc(o.cust||"بدون مشتری")} - ${esc(o.title||"")}${inv?" ✔ فاکتور شده":""}</option>`}).join("");e.value=c}
+function fillInvGroup(id){const o=D.orders.find(x=>x.id==id);if(!o){alert("ابتدا یک سفارش انتخاب کنید.");return}const g=o.grp?D.orders.filter(x=>x.grp==o.grp).sort((a,b)=>a.no-b.no):[o];fillInv(g[0].id,false);g.slice(1).forEach(x=>fillInv(x.id,true))}
+function fillInv(id,append){const o=D.orders.find(x=>x.id==id);if(!o){alert("ابتدا یک سفارش انتخاب کنید.");return}
+ if(append&&$("cs").value&&o.cs&&$("cs").value!=o.cs){alert("این سفارش مربوط به مشتری دیگری است.");return}
+ if(append&&curOrds.includes(o.no)&&!confirm("این سفارش قبلاً به این فاکتور اضافه شده. دوباره اضافه شود؟"))return;
+ if(!append){$("rows").innerHTML="";rowCount=0;curOrds=[];editInv=null;invBanner()}else[...$("rows").children].forEach(r=>{if(!r.querySelector(".nm").value&&!r.querySelector(".dm").value)r.remove()});
+ addRow();const r=$("rows").lastChild;r.querySelector(".nm").value=o.title||"چاپ DTF";r.querySelector(".dm").value=o.h||"";r.querySelector(".cp").value=o.n||"";renumber();
+ if(!append||!$("cust").value){$("cs").value=o.cs||"";$("cust").value=o.cust||""}
+ if(!curOrds.includes(o.no))curOrds.push(o.no);$("inv").value=curOrds.join("-");icalc();
+ $("f_info").textContent="سفارش‌های این فاکتور: "+curOrds.join("، ");
+ document.querySelector("[data-p=p4]").click();fillFord();$("f_ord").value=id}
+fillFord();
+
+let curCalcOrd=null;
+function fillCord(){const e=$("c_ord"),c=e.value;e.innerHTML='<option value="">— انتخاب سفارش —</option>'+D.orders.filter(o=>o.status!="done"&&(!$("calc_cs").value||o.cs==$("calc_cs").value)).map(o=>{const d=D.calcs.some(x=>x.ord==o.no);return `<option value="${o.id}">${o.no} - ${esc(o.cust||"بدون مشتری")} - ${esc(o.title||"")}${d?" 🧮 محاسبه شده":""}</option>`}).join("");e.value=c}
+function fillCalc(id){const o=D.orders.find(x=>x.id==id);if(!o){alert("ابتدا یک سفارش انتخاب کنید.");return}
+ $("h").value=o.h||"";$("n").value=o.n||"";$("px").value=o.px||"";$("calc_cs").value=o.cs||"";curCalcOrd=o.no;calc();
+ $("c_info").textContent="محاسبه برای سفارش "+o.no+(o.px?"":" — پیکسل ثبت نشده؛ پوشش کامل حساب شد");
+ document.querySelector("[data-p=p1]").click();fillCord();$("c_ord").value=id}
+fillCord();
+$("cs").addEventListener("change",()=>{const v=$("cs").value;if(curOrds.some(n=>{const o=D.orders.find(x=>x.no==n);return o&&o.cs!=v})){curOrds=[];$("f_info").textContent=""}fillFord()});
+$("calc_cs").addEventListener("change",()=>{const o=D.orders.find(x=>x.no==curCalcOrd);if(o&&o.cs!=$("calc_cs").value){curCalcOrd=null;$("c_info").textContent=""}fillCord()});
+function regInv(){const m=[...$("rows").children].reduce((a,r)=>a+rowLen(r),0)/100;
+ if(!m){alert("ردیف فاکتور خالی است.");return}
+ if(!$("inv").value.trim()){alert("شماره فاکتور را بنویسید.");$("inv").focus();return}
+ if(!$("cs").value&&!confirm("مشتری از لیست انتخاب نشده؛ فاکتور در بایگانی مشتری نمی‌آید. ثبت شود؟"))return;
+ const ed=!!editInv;invLog();fillFord();fillCord();alert("فاکتور شماره "+$("inv").value+(ed?" به‌روزرسانی شد.":" ثبت شد."))}
+const AB=Object.assign({on:true,every:15,keep:10,dl:false,lastAt:0,lastMsg:"",lastDl:0},(()=>{try{return JSON.parse(localStorage.getItem("dtfset")||"{}")}catch(e){return{}}})());
+const abSave=()=>{try{localStorage.setItem("dtfset",JSON.stringify(AB))}catch(e){}};
+let dirH=null,abBusy=false;
+const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open("dtfdb",3);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains("snaps"))d.createObjectStore("snaps",{keyPath:"id"});if(!d.objectStoreNames.contains("kv"))d.createObjectStore("kv");if(!d.objectStoreNames.contains("imgs"))d.createObjectStore("imgs");if(!d.objectStoreNames.contains("files"))d.createObjectStore("files")};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const idbx=async(st,mode,fn)=>{const d=await idb();return new Promise((res,rej)=>{const t=d.transaction(st,mode),q=fn(t.objectStore(st));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)})};
+window._idbReady=true;let imgBusy=false,imgPend=false;
+async function imgSync(){if(imgBusy){imgPend=true;return}imgBusy=true;
+ try{let ch=false;for(const o of imgObjs()){const ky=ik(o);if(o.img&&(!IMGDONE.has(ky)||IMGLEN[ky]!==o.img.length)){await idbx("imgs","readwrite",s=>s.put(o.img,ky));IMGDONE.add(ky);IMGLEN[ky]=o.img.length;ch=true}}
+  const keys=await idbx("imgs","readonly",s=>s.getAllKeys());for(const k of keys){const o=imgObjs().find(x=>ik(x)==k);if(!o||!o.img){await idbx("imgs","readwrite",s=>s.delete(k));IMGDONE.delete(k);delete IMGLEN[k]}}
+  if(ch){try{localStorage.setItem("dtfdata",JSON.stringify(D,stripImg))}catch(e){}}
+ }catch(e){}finally{imgBusy=false;if(imgPend){imgPend=false;imgSync()}}}
+async function imgLoad(){try{for(const o of imgObjs()){if(!o.img){const v=await idbx("imgs","readonly",s=>s.get(ik(o)));if(v){o.img=v;IMGDONE.add(ik(o));IMGLEN[ik(o)]=v.length}}}}catch(e){}
+ try{renderOL();renderOA();renderArc();renderLib();renderHome()}catch(e){}try{libSyncAll()}catch(e){}await imgSync()}
+const IMGREADY=imgLoad();
+async function applyRestore(d){const Dd=(d&&d.D)?d.D:d;if(!Dd||typeof Dd!=="object"||!(Dd.inv||Dd.orders||Dd.cust||Dd.buys||Dd.log))throw new Error("ساختار فایل پشتیبان شناخته نشد");
+ const ords=[].concat(Array.isArray(Dd.orders)?Dd.orders:[],Array.isArray(Dd.lib)?Dd.lib:[]);try{await idbx("imgs","readwrite",s=>s.clear())}catch(e){}
+ const IM=new Set();for(const o of ords){if(o&&o.img&&(o.ik!=null||o.id!=null)){const ky=o.ik!=null?o.ik:o.id;await idbx("imgs","readwrite",s=>s.put(o.img,ky));IM.add(ky)}}
+ localStorage.setItem("dtfdata",JSON.stringify(Dd,function(k,v){return(k==="img"&&this&&IM.has(this.ik!=null?this.ik:this.id))?undefined:v}));
+ if(d&&d.calc)localStorage.setItem("dtfcalc",d.calc)}
+const rsErr=x=>x instanceof SyntaxError?"فایل JSON معتبر نیست (ممکن است ناقص یا خراب باشد).":(x&&x.message?x.message:String(x))+(x&&x.name==="QuotaExceededError"?" — حافظه مرورگر پر است":"");
+const bname=at=>"dtf-backup-"+jkey(at).replace(/\//g,"-");
+async function runBackup(manual){if(abBusy)return;abBusy=true;const msgs=[];await IMGREADY;
+ try{const at=Date.now(),str=JSON.stringify({app:"dtf",v:1,at,D,calc:localStorage.getItem("dtfcalc")});
+  try{await idbx("snaps","readwrite",s=>s.put({id:at,at,size:str.length,data:str}));const ks=await idbx("snaps","readonly",s=>s.getAllKeys());ks.sort((a,b)=>b-a);for(const k of ks.slice(AB.keep))await idbx("snaps","readwrite",s=>s.delete(k));msgs.push("نسخه داخلی مرورگر")}catch(e){msgs.push("⚠️ نسخه داخلی ناموفق")}
+  if(dirH){try{let p=await dirH.queryPermission({mode:"readwrite"});if(p!="granted"&&manual)p=await dirH.requestPermission({mode:"readwrite"});
+   if(p=="granted"){for(const nm of ["dtf-backup-latest.json",bname(at)+".json"]){const fh=await dirH.getFileHandle(nm,{create:true}),w=await fh.createWritable();await w.write(str);await w.close()}msgs.push("پوشه «"+dirH.name+"»")}else msgs.push("⚠️ دسترسی پوشه نیاز به تایید دارد")}catch(e){msgs.push("⚠️ ذخیره در پوشه ناموفق")}}
+  else if(AB.dl&&(manual||at-AB.lastDl>864e5)){dl(new Blob([str],{type:"application/json"}),bname(at)+".json");AB.lastDl=at;msgs.push("دانلود فایل")}
+  window._dirty=0;AB.lastAt=at;AB.lastMsg=msgs.join("، ");abSave()
+ }catch(e){AB.lastMsg="⚠️ خطا در ذخیره"}finally{abBusy=false;abRender()}}
+async function abSnaps(){try{return(await idbx("snaps","readonly",s=>s.getAll())).sort((a,b)=>b.at-a.at)}catch(e){return[]}}
+async function abRender(){const tf=t=>new Date(t).toLocaleString("fa-IR-u-ca-persian",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+ $("ab_s").textContent=(AB.on?"ذخیره خودکار فعال":"ذخیره خودکار خاموش")+" — آخرین: "+(AB.lastAt?new Date(AB.lastAt).toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"}):"-");
+ $("ab_last").textContent=(AB.lastAt?tf(AB.lastAt):"هنوز انجام نشده")+(AB.lastMsg?" ("+AB.lastMsg+")":"");
+ $("ab_on").checked=AB.on;$("ab_ev").value=AB.every;$("ab_keep").value=AB.keep;$("ab_dl").checked=AB.dl;
+ let fs=window.showDirectoryPicker?(dirH?"پوشه انتخاب‌شده: «"+dirH.name+"». در آن فایل dtf-backup-latest.json و یک فایل برای هر روز نوشته می‌شود.":"پوشه‌ای انتخاب نشده است."):"مرورگر شما انتخاب پوشه را پشتیبانی نمی‌کند (Chrome یا Edge را استفاده کنید). از نسخه‌های داخلی مرورگر یا دانلود خودکار استفاده کنید.";
+ $("ab_fs").textContent=fs;let need=false;if(dirH){try{need=(await dirH.queryPermission({mode:"readwrite"}))!="granted"}catch(e){}}$("ab_perm").style.display=need?"block":"none";
+ const L=await abSnaps();$("ab_l").innerHTML=L.map(x=>`<tr><td>${tf(x.at)}</td><td>${fd(x.size/1024,0)} کیلوبایت</td><td><button class="btn" onclick="abRestore(${x.id})">♻️ بازیابی</button> <button class="btn" onclick="abDl(${x.id})">⬇️ دانلود</button> <button class="btn dl" onclick="abDel(${x.id})">🗑</button></td></tr>`).join("")||'<tr><td colspan="3">هنوز نسخه‌ای ذخیره نشده</td></tr>'}
+async function abGet(id){return(await idbx("snaps","readonly",s=>s.get(id)))}
+async function abRestore(id){const x=await abGet(id);if(!x||!confirm("اطلاعات فعلی با این نسخه جایگزین می‌شود. ادامه؟"))return;try{await applyRestore(JSON.parse(x.data));location.reload()}catch(e){alert("بازیابی ناموفق بود: "+rsErr(e))}}
+async function abDl(id){const x=await abGet(id);if(x)dl(new Blob([x.data],{type:"application/json"}),bname(x.at)+".json")}
+async function abDel(id){if(!confirm("این نسخه حذف شود؟"))return;await idbx("snaps","readwrite",s=>s.delete(id));abRender()}
+async function abPick(){if(!window.showDirectoryPicker){alert("این مرورگر انتخاب پوشه را پشتیبانی نمی‌کند. از Chrome یا Edge استفاده کنید.");return}
+ try{dirH=await showDirectoryPicker({mode:"readwrite"});await idbx("kv","readwrite",s=>s.put(dirH,"dir"));await runBackup(true)}catch(e){}abRender()}
+async function abUnpick(){dirH=null;try{await idbx("kv","readwrite",s=>s.delete("dir"))}catch(e){}abRender()}
+$("ab_on").addEventListener("change",()=>{AB.on=$("ab_on").checked;abSave();abRender()});
+$("ab_ev").addEventListener("change",()=>{AB.every=+$("ab_ev").value;abSave()});
+$("ab_keep").addEventListener("change",()=>{AB.keep=+$("ab_keep").value;abSave()});
+$("ab_dl").addEventListener("change",()=>{AB.dl=$("ab_dl").checked;abSave()});
+setInterval(()=>{if(AB.on&&window._dirty&&Date.now()-AB.lastAt>=AB.every*60000)runBackup(false)},30000);
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&AB.on&&window._dirty)runBackup(false)});
+try{idbx("kv","readonly",s=>s.get("dir")).then(h=>{dirH=h||null;abRender()}).catch(()=>abRender())}catch(e){}
+abRender();
+D.wreps=D.wreps||[];D.wset=Object.assign({test:10,gap:2,cov:100,cy:0,mg:0,yl:0,bk:0},D.wset||{});
+let WR={rows:[],reg:false};
+const wk=()=>nk(nd($("r_d").value));
+function wrLoad(){const r=D.wreps.find(x=>x.date==wk());WR=r?{rows:JSON.parse(JSON.stringify(r.rows)),reg:true}:{rows:[],reg:false};wrSync()}
+function wrSync(){const k=wk(),pr=D.orders.filter(o=>isPr(o)&&(o.pdate||jkey(o.ts))==k);
+ if(!WR.reg)WR.rows=WR.rows.filter(r=>!r.auto||(r.reprint?D.defects.some(d=>d.id==r.reprint&&d.reprint&&d.reprint.date==k):pr.some(o=>o.no==r.ord)));
+ pr.forEach(o=>{if(!WR.rows.some(r=>r.ord==o.no&&!r.reprint))WR.rows.push({ord:o.no,h:o.h||"",n:o.n||"",px:o.px||"",done:true,auto:true})});
+ D.defects.filter(d=>d.reprint&&d.reprint.date==k).forEach(d=>{if(!WR.rows.some(r=>r.reprint==d.id))WR.rows.push({ord:d.ord,h:d.h,n:d.reprint.copies,px:d.px||"",done:false,auto:true,reprint:d.id})})}
+function wrCalc(rows,P,W){const w=W||D.wset,cw=P?P.cw:(+$("cw").value||0),fp=P?P.fp:(+$("fp").value||1),cp=P?P.cp:(+$("cp").value||0),U={film:0,white:0,powder:0,cy:0,mg:0,yl:0,bk:0};let k=0;
+ const use=(ratio,n)=>{U.white+=cw*ratio*n/1000;U.powder+=cp*ratio*n/1000;["cy","mg","yl","bk"].forEach(c=>U[c]+=(+w[c]||0)*ratio*n/1000)};
+ rows.forEach(r=>{const h=+r.h||0,n=+r.n||0;if(!h||!n)return;k++;use(+r.px>0?r.px/fp:h/100,n);U.film+=h*n/100});
+ const testCm=k?+w.test||0:0,gapCm=k?(+w.gap||0)*k:0;U.film+=(testCm+gapCm)/100;if(k)use((+w.cov||0)/100*testCm/100,1);
+ return{U,k,testCm,gapCm}}
+function wrCost(U){const R=+$("usd").value||0,rl=+$("rl").value||100,base=U.white*(+$("pw").value||0)*R+U.film*(+$("pf").value||0)*R/rl+U.powder*(+$("pp").value||0)*R;return base*(1+(+$("pc").value||0)/100)}
+function wrSum(){const C=wrCalc(WR.rows),U=C.U,old=D.wreps.find(x=>x.date==wk()),inv=k=>(D.inv[k]||0)+(old?(old.use[k]||0):0);
+ WR.rows.forEach((r,i)=>{const e=$("wm_"+i);if(e)e.textContent=fd((+r.h||0)*(+r.n||0)/100,2)});
+ if($("wr_ts"))$("wr_ts").innerHTML=C.k?`تست ${fd(C.testCm,1)} سانتی‌متر + فاصله ${fd(+D.wset.gap||0,1)} × ${fd(C.k,0)} سفارش = <b>${fd(C.testCm+C.gapCm,1)} سانتی‌متر</b>`:"با ثبت سفارش، تست و فاصله خودکار اضافه می‌شود";
+ const L=[["film","رول فیلم","متر",U.film,1],["white","رنگ سفید","لیتر",U.white,1],["powder","پودر","کیلو",U.powder,1],["cy","جوهر آبی (C)","لیتر",U.cy,1],["mg","جوهر سرخابی (M)","لیتر",U.mg,1],["yl","جوهر زرد (Y)","لیتر",U.yl,1],["bk","جوهر مشکی (K)","لیتر",U.bk,1]].filter(x=>x[3]>0);
+ $("wr_sum").innerHTML=L.length?`<table class="lst" style="width:100%;border-collapse:collapse"><thead><tr><th>ماده مصرفی</th><th>مقدار مصرف</th><th>موجودی انبار</th><th>باقی‌مانده بعد از کسر</th></tr></thead><tbody>${L.map(x=>{const rem=inv(x[0])-x[3];return `<tr><td>${x[1]}</td><td>${fd(x[3],3)} ${x[2]}</td><td>${fd(inv(x[0]),2)}</td><td${rem<0?' style="color:#dc2626;font-weight:bold"':""}>${fd(rem,2)}${rem<0?" ⚠️ کمبود":""}</td></tr>`}).join("")}</tbody></table><p style="font-size:12px">هزینه تقریبی مواد مصرفی (با نرخ دلار و قیمت‌های فعلی): <b>${fa(wrCost(U))} تومان</b></p>`:'<p style="color:#64748b;font-size:13px">هنوز سفارشی وارد نشده است.</p>'}
+function wrSet(i,k,v){WR.rows[i][k]=k=="done"?v:(v===""?"":parseFloat(v)||0);wrSum()}
+function wrPick(i,no){const o=D.orders.find(x=>x.no==no);WR.rows[i]=o?{ord:o.no,h:o.h||"",n:o.n||"",px:o.px||"",done:true}:{ord:"",h:"",n:"",px:"",done:true};renderWork()}
+function wrAdd(){WR.rows.push({ord:"",h:"",n:"",px:"",done:true});renderWork()}
+function wrDel(i){const r=WR.rows[i];if(r&&r.ord&&D.orders.some(o=>o.no==r.ord)){delOrderAll(r.ord);return}WR.rows.splice(i,1);renderWork()}
+function wrCfg(k,v){D.wset[k]=parseFloat(v)||0;save();wrSum()}
+function renderWork(){wrSync();const k=wk(),opts=r=>'<option value="">— سفارش —</option>'+D.orders.filter(o=>!isPr(o)||o.no==r.ord).map(o=>`<option value="${o.no}"${o.no==r.ord?" selected":""}>${o.no} - ${esc(o.cust||"بدون مشتری")} - ${esc(o.title||"")}</option>`).join("");
+ const w=D.wset,cf=(l,key,u)=>`<span style="margin-left:10px;font-size:12px">${l} <input type="number" step="0.1" value="${w[key]}" style="width:60px" onchange="wrCfg('${key}',this.value)"> ${u}</span>`;
+ $("wr").innerHTML=`<div style="border:2px solid #6d28d9;border-radius:12px;padding:12px;margin-bottom:14px"><h3 style="margin:0 0 8px;color:#6d28d9">📝 گزارش کار روز ${k} ${WR.reg?'<span style="color:#16a34a;font-size:12px">✅ ثبت شده (مصرف از انبار کسر شده)</span>':'<span style="color:#f59e0b;font-size:12px">⏳ ثبت نشده</span>'}</h3>
+ <p style="font-size:12px;color:#64748b;margin:0 0 8px">سفارش‌هایی که در این تاریخ «چاپ شد» می‌شوند خودکار به این گزارش اضافه می‌شوند (و با تغییر وضعیت سفارش، گزارش به‌روز می‌شود). ارتفاع و تعداد واقعی را می‌توانید اصلاح کنید؛ در پایان «ثبت گزارش» را بزنید.</p>
+ <table class="lst" style="width:100%;border-collapse:collapse"><thead><tr><th>سفارش</th><th>ارتفاع (سانتی‌متر)</th><th>تعداد چاپ‌شده</th><th>پیکسل</th><th>متراژ (متر)</th><th>تکمیل شد</th><th class="noprint"></th></tr></thead><tbody>
+ ${WR.rows.map((r,i)=>`<tr><td>${r.reprint?"<small>🔁 چاپ مجدد (از ضایعات)</small><br>":r.auto?"<small>🔄 خودکار از سفارش‌های چاپ‌شده</small><br>":""}<select class="sel" style="width:210px" onchange="wrPick(${i},this.value)">${opts(r)}</select></td><td><input type="number" value="${r.h}" oninput="wrSet(${i},'h',this.value)"></td><td><input type="number" value="${r.n}" oninput="wrSet(${i},'n',this.value)"></td><td><input type="number" value="${r.px}" oninput="wrSet(${i},'px',this.value)"></td><td id="wm_${i}"></td><td><input type="checkbox" style="width:auto"${r.done?" checked":""} onchange="wrSet(${i},'done',this.checked)"></td><td class="noprint"><button class="btn dl" onclick="wrDel(${i})">🗑</button></td></tr>`).join("")}
+ <tr style="background:#f1f5f9"><td><b>🧪 تست و فضا</b></td><td colspan="6" id="wr_ts"></td></tr></tbody></table>
+ <p class="noprint"><button class="btn" onclick="wrAdd()">➕ افزودن سفارش</button></p><div id="wr_sum"></div>
+ <details class="noprint" style="margin:8px 0"><summary style="cursor:pointer;font-size:13px">⚙️ تنظیم تست و فضا و مصرف جوهر رنگی</summary><div style="margin-top:8px">${cf("تست روزانه","test","سانتی‌متر")}${cf("فاصله هر سفارش","gap","سانتی‌متر")}${cf("پوشش تست","cov","٪")}<br>${cf("مصرف C در متر پر","cy","میلی‌لیتر")}${cf("M","mg","میلی‌لیتر")}${cf("Y","yl","میلی‌لیتر")}${cf("K","bk","میلی‌لیتر")}<br><small style="color:#64748b">مصرف جوهرهای رنگی اگر صفر باشد از انبار کسر نمی‌شود.</small></div></details>
+ <p class="noprint"><button class="btn gr" onclick="wrRegister()">✅ ${WR.reg?"ثبت مجدد گزارش (ویرایش)":"ثبت گزارش و کسر مصرف از انبار"}</button> ${WR.reg?'<button class="btn dl" onclick="wrRemove()">🗑 حذف گزارش و برگرداندن مصرف</button>':""}</p></div>`;wrSum();renderDf()}
+const rpTxt=d=>!d.redo?"—":d.reprint?"✅ "+d.reprint.date+" ("+fd(d.reprint.copies,0)+" کپی)":"⏳ منتظر چاپ مجدد";
+function dfRe(id){const d=D.defects.find(x=>x.id==id);if(!d)return;
+ const c=parseFloat(nd(prompt("تعداد کپی چاپ مجدد:",d.n)||""));if(!c)return;
+ const dt=nk(nd(prompt("تاریخ چاپ مجدد (شمسی):",jkey(Date.now()))||""));if(!dt)return;
+ d.reprint={date:dt,copies:c,ts:Date.now()};
+ const o=D.orders.find(x=>x.no==d.ord);if(o&&!D.defects.some(x=>x.ord==d.ord&&x.redo&&!x.reprint)){o.status="pr";o.pdate=o.pdate||dt;ordAutoDone()}
+ save();refreshAll();alert("چاپ مجدد ثبت شد و به گزارش کار روز "+dt+" اضافه شد.\nبرای کسر مصرف آن از انبار، در همان روز «ثبت گزارش» را بزنید.")}
+function dfUndo(id){const d=D.defects.find(x=>x.id==id);if(!d||!confirm("ثبت چاپ مجدد لغو شود؟ (اگر در گزارش کاری ثبت شده، مصرفش به انبار برمی‌گردد)"))return;
+ D.wreps.slice().forEach(r=>{if(r.rows.some(x=>x.reprint==id)){r.rows=r.rows.filter(x=>x.reprint!=id);wrRecalc(r)}});
+ d.reprint=null;const o=D.orders.find(x=>x.no==d.ord);if(o&&d.redo&&isPr(o))o.status="bad";save();refreshAll()}
+function dfFill(){const o=D.orders.find(x=>x.no==$("df_o").value);if(o){$("df_h").value=o.h||"";$("df_n").value=o.n||"";$("df_px").value=o.px||""}}
+function dfOpen(no){document.querySelector("[data-p=p5]").click();$("df_f").style.display="block";$("df_d").value=wk()||jkey(Date.now());if(no){$("df_o").value=D.orders.some(x=>x.no==no)?no:"";dfFill()}$("df").scrollIntoView()}
+function renderDf(){const k=wk(),L=D.defects.filter(d=>d.date==k);$("df_d0").textContent="— روز "+k;
+ $("df_l").innerHTML=L.length?`<table class="lst" style="width:100%;border-collapse:collapse"><thead><tr><th>سفارش</th><th>ابعاد</th><th>علت</th><th>فیلم (متر)</th><th>رنگ سفید (میلی‌لیتر)</th><th>پودر (گرم)</th><th>هزینه تقریبی (تومان)</th><th>چاپ مجدد</th><th class="noprint"></th></tr></thead><tbody>${L.map(d=>`<tr><td>${d.ord?d.ord+" - "+(d.cust||""):"—"}</td><td>${fd(d.h,1)} × ${fd(d.n,0)}</td><td>${d.reason}${d.note?" - "+d.note:""}</td><td>${fd(d.use.film,2)}</td><td>${fd(d.use.white*1000,1)}</td><td>${fd(d.use.powder*1000,1)}</td><td>${fa(d.use.cost||0)}</td><td>${d.redo&&!d.reprint?`<button class="btn gr noprint" onclick="dfRe(${d.id})">🔁 چاپ مجدد انجام شد</button>`:rpTxt(d)+(d.reprint?` <button class="btn noprint" onclick="dfUndo(${d.id})">↩️</button>`:"")}</td><td class="noprint"><button class="btn dl" onclick="dfDel(${d.id})">🗑</button></td></tr>`).join("")}</tbody></table>`:'<p style="color:#64748b;font-size:13px">برای این روز خرابی ثبت نشده است.</p>';
+ const c=$("df_o").value;$("df_o").innerHTML='<option value="">— بدون سفارش (خرابی عمومی) —</option>'+D.orders.map(o=>`<option value="${o.no}">${o.no} - ${esc(o.cust||"بدون مشتری")} - ${esc(o.title||"")}</option>`).join("");$("df_o").value=c}
+function dfSave(){const o=D.orders.find(x=>x.no==$("df_o").value),h=+$("df_h").value||0,n=+$("df_n").value||0;if(!h||!n){alert("ارتفاع و تعداد کپی خراب را وارد کنید.");return}
+ const px=+$("df_px").value||0,date=nk(nd($("df_d").value))||jkey(Date.now()),fp=+$("fp").value||1,cw=+$("cw").value||0,cp=+$("cp").value||0,ratio=px>0?px/fp:h/100;
+ const use={film:h*n/100,white:cw*ratio*n/1000,powder:cp*ratio*n/1000};use.cost=wrCost(use);
+ const id=Date.now(),d={id,ts:id,date,ord:o?o.no:"",cs:o?o.cs:"",cust:o?o.cust:"",title:o?o.title:"",h,n,px,reason:$("df_r").value,note:$("df_nt").value,redo:!!(o&&$("df_re").checked),prev:o?o.status:null,use};
+ D.defects.push(d);D.inv.film-=use.film;D.inv.white-=use.white;D.inv.powder-=use.powder;
+ D.log.push({ts:id,dk:date,k:"use",df:id,h:0,n:0,w:use.white*1000,f:use.film,p:use.powder*1000,cost:use.cost,price:0});
+ if(d.redo){o.status="bad";delete o.pdate}
+ $("df_f").style.display="none";["df_h","df_n","df_px","df_nt"].forEach(i=>$(i).value="");save();refreshAll();
+ alert("خرابی ثبت شد و مصرف آن از انبار کسر گردید."+(d.redo?"\nوضعیت سفارش «خراب - نیاز به چاپ مجدد» شد.":""))}
+function dfDel(id){const d=D.defects.find(x=>x.id==id);if(!d||!confirm("این خرابی حذف شود و مصرف آن به انبار برگردد؟"))return;
+ D.wreps.slice().forEach(r=>{if(r.rows.some(x=>x.reprint==id)){r.rows=r.rows.filter(x=>x.reprint!=id);wrRecalc(r)}});
+ D.inv.film+=d.use.film;D.inv.white+=d.use.white;D.inv.powder+=d.use.powder;D.log=D.log.filter(x=>x.df!=id);D.defects=D.defects.filter(x=>x.id!=id);
+ const o=D.orders.find(x=>x.no==d.ord);if(o&&d.redo&&o.status=="bad"&&!D.defects.some(x=>x.ord==d.ord&&x.redo)){o.status=d.prev&&d.prev!="bad"?d.prev:"w";if(o.status=="pr")o.pdate=o.pdate||d.date}
+ save();refreshAll()}
+function ordAutoDone(){D.orders.forEach(o=>{if(o.status=="pr"&&!o.noAuto&&D.log.some(x=>x.k=="inv"&&(x.ord||[]).includes(o.no))){o.status="done";o.doneAt=o.doneAt||jkey(Date.now())}})}
+function ordRestore(id){const o=D.orders.find(x=>x.id==id);if(!o||!confirm("این سفارش به لیست ثبت سفارش برگردد؟"))return;o.status="pr";delete o.doneAt;o.noAuto=true;save();refreshAll()}
+function libOrdCat(){let c=D.libCats.find(v=>v.name=="سفارشات");if(!c){c={id:Date.now(),name:"سفارشات"};D.libCats.push(c)}return c.id}
+function libSyncOrder(o){if(!o||!o.img||o.libSkip)return false;let x=D.lib.find(v=>v.ord==o.no);
+ if(!x){const id=Date.now()+Math.floor(Math.random()*1e4);D.lib.unshift({id,ik:"L"+id,ts:id,code:libNewCode(),name:o.title||("طرح سفارش "+o.no),cat:libOrdCat(),tags:"سفارش",cs:o.cs||"",h:o.h||"",w:"",px:o.px||"",note:"سفارش شماره "+o.no,path:"",img:o.img,fname:"",uses:0,ord:o.no});return true}
+ let ch=false;if(x.img!==o.img){x.img=o.img;ch=true}if(x.cs!==(o.cs||"")){x.cs=o.cs||"";ch=true}if(o.h&&x.h!==o.h){x.h=o.h;ch=true}if(o.px&&x.px!==o.px){x.px=o.px;ch=true}return ch}
+function libSyncAll(){let ch=false;D.orders.forEach(o=>{if(libSyncOrder(o))ch=true});if(ch){save();try{renderLib()}catch(e){}}}
+function wrRevert(r){const U=r.use;["film","white","powder","cy","mg","yl","bk"].forEach(c=>D.inv[c]=(D.inv[c]||0)+(U[c]||0));
+ r.rows.forEach(x=>{if(x.marked){const o=D.orders.find(v=>v.no==x.ord);if(o&&isPr(o)){o.status=x.prev||"w";if(!isPr(o))delete o.pdate}}});D.log=D.log.filter(x=>x.wr!=r.id);D.wreps=D.wreps.filter(x=>x.id!=r.id)}
+function wrRecalc(r){const oldU=r.use;if(!r.rows.some(x=>+x.h&&+x.n)){wrRevert(r);return}
+ const C=wrCalc(r.rows,r.rates,r.set);["film","white","powder","cy","mg","yl","bk"].forEach(c=>D.inv[c]=(D.inv[c]||0)+(oldU[c]||0)-(C.U[c]||0));
+ r.use=C.U;r.cost=wrCost(C.U);const lg=D.log.find(x=>x.wr==r.id);if(lg){lg.w=C.U.white*1000;lg.f=C.U.film;lg.p=C.U.powder*1000;lg.cost=r.cost}}
+function refreshAll(){renderInv();renderOL();renderRep();renderCusts();renderArc();fillFord();fillCord();renderInvList();invBanner();renderMon();renderOA();
+ if(WR.reg)wrLoad();else WR.rows=WR.rows.filter(r=>!r.ord||D.orders.some(o=>o.no==r.ord));renderWork();renderHome();renderPL()}
+function delOrderAll(no,nc){const o=D.orders.find(x=>x.no==no),inv=D.log.filter(x=>x.k=="inv"&&(x.ord||[]).includes(no)),calcs=D.calcs.filter(x=>x.ord==no),uses=D.log.filter(x=>x.k=="use"&&x.ord==no&&!x.wr),reps=D.wreps.filter(r=>r.rows.some(x=>x.ord==no));
+ if(!o&&!inv.length&&!calcs.length&&!reps.length)return;
+ if(!nc&&!confirm("حذف کامل سفارش "+no+(o&&o.cust?" ("+o.cust+")":"")+"؟\nاین موارد همگی پاک می‌شوند:\n• سفارش و عکس چیدمان\n• "+fd(inv.length,0)+" فاکتور\n• "+fd(calcs.length,0)+" محاسبه قیمت\n• "+fd(D.defects.filter(d=>d.ord==no).length,0)+" ضایعات ثبت‌شده (مصرفشان به انبار برمی‌گردد)\n• ردیف این سفارش در "+fd(reps.length,0)+" گزارش کار (مصرف مواد در انبار اصلاح می‌شود)\n• طرح ذخیره‌شده این سفارش در کتابخانه طرح\n• و از گزارش روزانه و ماهانه\nاین کار برگشت‌پذیر نیست."))return;
+ reps.forEach(r=>{r.rows=r.rows.filter(x=>x.ord!=no);wrRecalc(r)});
+ uses.forEach(u=>{D.inv.white+=(u.w||0)/1000;D.inv.film+=u.f||0;D.inv.powder+=(u.p||0)/1000});
+ D.defects.filter(d=>d.ord==no).forEach(d=>{D.inv.film+=d.use.film;D.inv.white+=d.use.white;D.inv.powder+=d.use.powder;D.log=D.log.filter(x=>x.df!=d.id)});D.defects=D.defects.filter(d=>d.ord!=no);
+ D.log=D.log.filter(x=>!(x.k=="inv"&&(x.ord||[]).includes(no))&&!(x.k=="use"&&x.ord==no&&!x.wr));
+ D.lib=D.lib.filter(x=>x.ord!=no);D.calcs=D.calcs.filter(x=>x.ord!=no);D.orders=D.orders.filter(x=>x.no!=no);
+ if(curId&&!D.orders.some(x=>x.id==curId))curId=null;if(curCalcOrd==no)curCalcOrd=null;curOrds=curOrds.filter(n=>n!=no);if(editInv&&!D.log.some(x=>x.ts==editInv))editInv=null;
+ save();refreshAll()}
+function deleteCalcOrder(){const o=D.orders.find(x=>x.id==$("c_ord").value);if(!o){alert("ابتدا یک سفارش انتخاب کنید.");return}delOrderAll(o.no)}
+function wrRemove(){const r=D.wreps.find(x=>x.date==wk());if(!r||!confirm("گزارش این روز حذف و مصرف آن به انبار برگردانده شود؟"))return;wrRevert(r);save();renderInv();renderOL();wrLoad();renderWork();renderRep()}
+function wrRegister(){const k=wk(),C=wrCalc(WR.rows);if(!C.k){alert("حداقل یک سفارش با ارتفاع و تعداد وارد کنید.");return}
+ const old=D.wreps.find(x=>x.date==k);if(old){if(!confirm("برای این تاریخ قبلاً گزارش ثبت شده است. مصرف قبلی به انبار برگردانده و این گزارش جایگزین شود؟"))return;wrRevert(old)}
+ const rows=WR.rows.filter(r=>+r.h&&+r.n).map(r=>{const o=D.orders.find(v=>v.no==r.ord),m=!!(r.done&&o&&!isPr(o));return Object.assign({},r,{marked:m,prev:o?o.status:null})});
+ rows.forEach(r=>{if(r.marked){const o=D.orders.find(v=>v.no==r.ord);o.status="pr";o.pdate=k}});ordAutoDone();
+ const U=C.U;["film","white","powder","cy","mg","yl","bk"].forEach(c=>D.inv[c]=(D.inv[c]||0)-U[c]);
+ const id=Date.now(),cost=wrCost(U);D.wreps.push({id,date:k,ts:id,rows,set:Object.assign({},D.wset),rates:{cw:+$("cw").value||0,fp:+$("fp").value||1,cp:+$("cp").value||0},use:U,cost});
+ D.log.push({ts:id,dk:k,k:"use",wr:id,h:0,n:0,w:U.white*1000,f:U.film,p:U.powder*1000,cost,price:0});
+ save();renderInv();renderOL();wrLoad();renderWork();renderRep();alert("گزارش کار روز "+k+" ثبت شد و مصرف مواد از انبار کسر گردید.")}
+$("r_d").addEventListener("input",()=>{wrLoad();renderWork()});
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{if($("p5").classList.contains("on")||b.dataset.p=="p5")renderWork()}));
+wrLoad();renderWork();
+function saveToOrder(){let o=D.orders.find(x=>x.id==$("c_ord").value);
+ if(!o){const cs=$("calc_cs").value;if(!cs){alert("ابتدا مشتری و سفارش را انتخاب کنید.");return}
+  const t=prompt("سفارشی انتخاب نشده. عنوان سفارش جدید برای این مشتری را بنویسید:");if(!t)return;
+  o={id:Date.now(),no:D.on++,ts:Date.now(),cs,cust:cname(cs),title:t,h:0,n:0,px:0,dv:"",nt:"",img:"",status:"w"};D.orders.unshift(o)}
+ o.h=LAST.h;o.n=LAST.n;o.px=parseFloat($("px").value)||0;o.calc={ts:Date.now(),cost:LAST.cost,price:LAST.price,len:LAST.len,usd:parseFloat($("usd").value)||0};
+ curCalcOrd=o.no;save();renderOL();fillCord();$("c_ord").value=o.id;alert("محاسبه در سفارش "+o.no+" ثبت شد.")}
+function editCalcOrder(){const id=$("c_ord").value;if(!id){alert("ابتدا یک سفارش انتخاب کنید.");return}loadOrder(+id);document.querySelector("[data-p=p8]").click()}
+$("c_ord").addEventListener("change",()=>{if($("c_ord").value)fillCalc($("c_ord").value)});
+setTimeout(()=>{window._dirty=0},0);
+
+
+
+function usdStat(){const t=jkey(Date.now());$("usd_s").innerHTML=D.usdDate==t?'<span style="color:#166534">✅ نرخ امروز ثبت شده</span>':'<span style="color:#dc2626">⚠️ نرخ امروز را بنویسید'+(D.usdDate?" (آخرین ثبت: "+D.usdDate+")":"")+'</span>'}
+$("usd").addEventListener("input",()=>{D.usdDate=jkey(Date.now());D.rates=D.rates||{};D.rates[D.usdDate]=parseFloat($("usd").value)||0;save();usdStat()});usdStat();
+function printEl(el){const hid=[];let n=el;while(n&&n!==document.body){[...n.parentNode.children].forEach(c=>{if(c!==n&&!["SCRIPT","STYLE","LINK"].includes(c.tagName)){c.classList.add("pe-hide");hid.push(c)}});n=n.parentNode}
+ el.classList.add("pe-on");window.print();setTimeout(()=>{hid.forEach(c=>c.classList.remove("pe-hide"));el.classList.remove("pe-on");if(el.classList.contains("pe-tmp"))el.remove()},500)}
+function printReqs(rid){const L=D.reqs.filter(r=>r.status!="done"&&(!rid||r.id==rid));let rows="",i=0;const sum={};
+ L.forEach(r=>r.items.forEach(it=>{if(it.done||it.cancel)return;i++;const rem=it.q-(it.got||0);sum[it.m]=(sum[it.m]||0)+rem;rows+=`<tr><td>${fd(i,0)}</td><td>${fd(r.no,0)}</td><td>${jkey(r.ts).replace(/\d/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d])}</td><td>${MN[it.m]}</td><td>${fd(rem,2)}</td><td>${UQ[it.m]}</td><td></td><td>${(r.note||"")+(it.got?" (قبلاً "+fd(it.got,2)+" خریداری شده)":"")}</td></tr>`}));
+ if(!i){alert("درخواست منتظر خریدی وجود ندارد.");return}
+ const sr=Object.keys(sum).map(m=>`<tr><td>${MN[m]}</td><td>${fd(sum[m],2)}</td><td>${UQ[m]}</td></tr>`).join("");
+ const d=document.createElement("div");d.className="pe-tmp";
+ d.innerHTML=`<div style="border-bottom:3px solid #000;padding-bottom:8px;margin-bottom:12px"><b style="font-size:18px">🖨️ ${rid?"درخواست خرید شماره "+fd(L[0].no,0):"درخواست‌های منتظر خرید"}</b><br>تاریخ: ${new Date().toLocaleDateString("fa-IR-u-ca-persian",{year:"numeric",month:"long",day:"numeric"})} - ساعت ${new Date().toLocaleTimeString("fa-IR")}</div>
+ <table><thead><tr><th>ردیف</th><th>شماره درخواست</th><th>تاریخ درخواست</th><th>ماده</th><th>مقدار</th><th>واحد</th><th>قیمت واحد (دلار)</th><th>توضیحات</th></tr></thead><tbody>${rows}</tbody></table>
+ <b>جمع مقدار مورد نیاز هر ماده</b><table style="width:60%;margin-top:6px"><thead><tr><th>ماده</th><th>مقدار کل</th><th>واحد</th></tr></thead><tbody>${sr}</tbody></table>`;
+ document.body.appendChild(d);printEl(d)}
+fillOcs();renderArc();renderMon();
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{renderMon();renderArc();fillFord();fillCord();renderOL();renderInvList()}));
+
+
+const FA='۰۱۲۳۴۵۶۷۸۹';
+const toFa=s=>String(s).replace(/\d/g,d=>FA[d]);
+const toEn=s=>String(s).replace(/[۰-۹]/g,d=>FA.indexOf(d)).replace(/[٠-٩]/g,d=>d.charCodeAt(0)-1632).replace(/[٬,،]/g,'').replace(/[×xX*]/g,'x').replace(/٫/g,'.');
+const TIERS=[900000,600000,580000,520000];
+let manualPrice=false, rowCount=0;
+
+function addRow(){
+  rowCount++;
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td class="n">${toFa(rowCount)}<button class="del" title="حذف ردیف" data-html2canvas-ignore>×</button></td>
+  <td><input class="nm"></td><td><input class="dm" inputmode="decimal" placeholder="100"></td>
+  <td><input class="cp" inputmode="numeric" placeholder="1"></td><td class="calc m"></td><td class="calc c"></td>`;
+  tr.querySelector('.del').onclick=()=>{tr.remove();renumber();icalc()};
+  tr.addEventListener('input',icalc);
+  $('rows').appendChild(tr);
+}
+function renumber(){[...$('rows').children].forEach((r,i)=>r.querySelector('.n').firstChild.textContent=toFa(i+1));rowCount=$('rows').children.length}
+
+function rowLen(r){
+  const dm=toEn(r.querySelector('.dm').value).split('x').map(parseFloat).filter(v=>!isNaN(v));
+  if(!dm.length)return 0;
+  const len=dm.length>1?dm[1]:dm[0];
+  const cp=parseFloat(toEn(r.querySelector('.cp').value))||1;
+  return len*cp;
+}
+const num=id=>parseFloat(toEn($(id).value))||0;
+const fmt=n=>toFa(Math.round(n).toLocaleString('en-US'));
+
+function icalc(){
+  let total=0;
+  [...$('rows').children].forEach(r=>{
+    const l=rowLen(r);total+=l;
+    r.querySelector('.m').textContent=l?toFa(+(l/100).toFixed(3)):'';
+    r.querySelector('.c').textContent=l?toFa(+l.toFixed(1)):'';
+  });
+  const m=Math.floor(total/100), c=+(total%100).toFixed(1);
+  $('tm').textContent=toFa(m);$('tc').textContent=toFa(c);
+  const meters=total/100;
+  const tier=meters<1?0:meters<3?1:meters<5?2:3;
+  document.querySelectorAll('.tr[data-t]').forEach(e=>e.classList.toggle('on',total>0&&+e.dataset.t===tier));
+  const big=meters>20;$('disc').hidden=!big;$('tmn').hidden=!big;
+  if(!manualPrice)$('ppm').value=total>0?fmt(TIERS[tier]):'';
+  const ov=num('totov'),grand=ov>0?ov:Math.round(meters*num('ppm')),okp=total>0&&(ov>0||num('ppm')>0);
+  $('total').textContent=okp?fmt(grand):'محاسبه...';
+  $('final').textContent=okp?fmt(grand+num('design')+num('press')):'محاسبه...';
+  const w=$('words');
+  if(total>0){w.textContent=lenWords(m,c);w.classList.remove('empty')}
+  else{w.textContent='محاسبه خودکار...';w.classList.add('empty')}
+}
+function lenWords(m,c){
+  const p=[];
+  if(m>0)p.push(words(m)+' متر');
+  if(c>0)p.push((Number.isInteger(c)?words(c):toFa(c))+' سانتی‌متر');
+  return p.join(' و ')||'صفر';
+}
+$('ppm').addEventListener('input',()=>{manualPrice=$('ppm').value.trim()!=='';icalc()});
+$('design').addEventListener('input',icalc);
+$('press').addEventListener('input',icalc);
+
+const ONES=['','یک','دو','سه','چهار','پنج','شش','هفت','هشت','نه','ده','یازده','دوازده','سیزده','چهارده','پانزده','شانزده','هفده','هجده','نوزده'];
+const TENS=['','','بیست','سی','چهل','پنجاه','شصت','هفتاد','هشتاد','نود'];
+const HUN=['','صد','دویست','سیصد','چهارصد','پانصد','ششصد','هفتصد','هشتصد','نهصد'];
+const SC=['','هزار','میلیون','میلیارد'];
+function three(n){
+  const p=[],h=Math.floor(n/100),r=n%100;
+  if(h)p.push(HUN[h]);
+  if(r<20){if(r)p.push(ONES[r])}
+  else{p.push(TENS[Math.floor(r/10)]);if(r%10)p.push(ONES[r%10])}
+  return p.join(' و ');
+}
+function words(n){
+  if(n===0)return 'صفر';
+  const parts=[];let i=0;
+  while(n>0&&i<SC.length){
+    const g=n%1000;
+    if(g)parts.unshift(three(g)+(SC[i]?' '+SC[i]:''));
+    n=Math.floor(n/1000);i++;
+  }
+  return parts.join(' و ');
+}
+
+$('date').value=(()=>{try{return new Intl.DateTimeFormat('fa-IR-u-ca-persian-nu-arab'.replace('arab','latn'),{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replace(/-/g,'/')}catch(e){return ''}})().replace(/\d/g,d=>FA[d]);
+
+function fname(ext){
+  const c=s=>$(s).value.replace(/[\\/:*?"<>|]/g,'').replace(/\s+/g,' ').trim();
+  const n=[c('cust'),c('code')].filter(Boolean).join(' - ')||'dtf-order';
+  return n+'.'+ext;
+}
+async function dl(blob,name){
+  try{const d=await claude.use("downloads");if(d){await d.save({filename:name,data:blob});return}}catch(e){if(e&&e.code==='declined')return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
+}
+async function xlsx(){
+  if(!window.ExcelJS)return alert('ابزار اکسل بارگذاری نشد.');
+  const wb=new ExcelJS.Workbook(),ws=wb.addWorksheet('سفارش DTF',{views:[{rightToLeft:true,showGridLines:false}],pageSetup:{orientation:'portrait',fitToPage:true,fitToWidth:1,fitToHeight:0,paperSize:9}});
+  ws.columns=[{width:8},{width:30},{width:16},{width:12},{width:12},{width:14}];
+  const NAVY='FF1D2438',RED='FFC8102E',thin={style:'thin',color:{argb:'FF1D2438'}};
+  const box={top:thin,left:thin,bottom:thin,right:thin};
+  const fill=c=>({type:'pattern',pattern:'solid',fgColor:{argb:c}});
+  const font=(o={})=>Object.assign({name:'Tahoma',size:11},o);
+  const mid={horizontal:'center',vertical:'middle',readingOrder:'rtl'};
+  const put=(a,v,o={})=>{const c=ws.getCell(a);c.value=v;c.alignment=mid;c.font=font(o.f);if(o.fill)c.fill=fill(o.fill);if(o.b!==false)c.border=box;if(o.fmt)c.numFmt=o.fmt;return c};
+  ws.mergeCells('A1:F1');put('A1','کنترل اجرای سفارشات DTF',{fill:NAVY,f:{bold:true,size:16,color:{argb:'FFFFFFFF'}}});ws.getRow(1).height=34;
+  ws.mergeCells('A2:F2');ws.getRow(2).height=6;ws.getCell('A2').fill=fill(RED);
+  const info=(r,l1,v1,l2,v2)=>{
+    put('A'+r,'',{b:false});
+    ws.mergeCells(`A${r}:B${r}`);put('A'+r,l1,{fill:RED,f:{bold:true,color:{argb:'FFFFFFFF'}}});ws.getCell('B'+r).border=box;
+    ws.mergeCells(`C${r}:D${r}`);put('C'+r,v1);ws.getCell('D'+r).border=box;
+    put('E'+r,l2,{fill:NAVY,f:{bold:true,color:{argb:'FFFFFFFF'}}});put('F'+r,v2);ws.getRow(r).height=24};
+  info(4,'نام مشتری',$('cust').value,'تاریخ فاکتور',$('date').value);
+  info(5,'کد طرح',$('code').value,'شماره فاکتور',$('inv').value);
+  const h=7;ws.mergeCells(`A${h}:F${h}`);put('A'+h,'متراژ هر طرح',{fill:RED,f:{bold:true,size:13,color:{argb:'FFFFFFFF'}}});ws.getRow(h).height=26;
+  ['ردیف','نام ذخیره شده','طول طرح (cm)','تعداد کپی','متر','سانتی‌متر'].forEach((t,i)=>put(String.fromCharCode(65+i)+(h+1),t,{fill:NAVY,f:{bold:true,color:{argb:'FFFFFFFF'}}}));
+  ws.getRow(h+1).height=24;
+  let r=h+2,tot=0;
+  [...$('rows').children].forEach((tr,i)=>{
+    const l=rowLen(tr);tot+=l;const zebra=i%2?'FFF3F5F9':'FFFFFFFF';
+    const cp=parseFloat(toEn(tr.querySelector('.cp').value))||null;
+    const ln=parseFloat(toEn(tr.querySelector('.dm').value).split('x').pop())||null;
+    [i+1,tr.querySelector('.nm').value,ln,cp,l?+(l/100).toFixed(3):null,l?+l.toFixed(1):null].forEach((v,k)=>put(String.fromCharCode(65+k)+r,v,{fill:zebra,f:{bold:k===0}}));
+    ws.getRow(r).height=22;r++;
+  });
+  r++;
+  const tm=Math.floor(tot/100),tc=+(tot%100).toFixed(1);
+  const line=(lab,val,hot,fmt)=>{
+    ws.mergeCells(`A${r}:B${r}`);put('A'+r,lab,{fill:hot?RED:NAVY,f:{bold:true,color:{argb:'FFFFFFFF'}}});ws.getCell('B'+r).border=box;
+    ws.mergeCells(`C${r}:F${r}`);put('C'+r,val,{fmt,f:{bold:true,size:hot?13:11},fill:hot?'FFFDECEF':undefined});
+    ['D','E','F'].forEach(c=>ws.getCell(c+r).border=box);ws.getRow(r).height=24;r++};
+  line('جمع کل متراژ',`${tm} متر و ${tc} سانتی‌متر`);
+  line(tot>2000?'قیمت هر متر (تومان) - شامل تخفیف ویژه':'قیمت هر متر (تومان)',num('ppm')||null,false,'#,##0');
+  const g=num('totov')>0?num('totov'):Math.round(tot/100*num('ppm'));
+  line('مبلغ کل (تومان)',g||null,false,'#,##0');
+  line('هزینه طراحی (تومان)',num('design')||null,false,'#,##0');
+  line('هزینه پرس‌کاری (تومان)',num('press')||null,false,'#,##0');
+  line('مبلغ نهایی فاکتور (تومان)',g?g+num('design')+num('press'):null,true,'#,##0');
+  line('جمع کل متراژ به حروف',tot>0?lenWords(tm,tc):'');
+  ws.getRow(r-1).height=34;ws.getCell('C'+(r-1)).alignment={...mid,wrapText:true};
+  try{const buf=await wb.xlsx.writeBuffer();
+    dl(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),fname('xlsx'))}
+  catch(e){alert('ساخت فایل اکسل ناموفق بود.')}
+}
+function snap(){return html2canvas($('cap'),{scale:2,backgroundColor:'#ffffff'})}
+async function ishot(){
+  if(!window.html2canvas)return alert('ابزار اسکرین‌شات بارگذاری نشد.');
+  try{const c=await snap();c.toBlob(b=>dl(b,fname('png')))}catch(e){alert('ساخت تصویر ناموفق بود.')}
+}
+async function ipdf(){
+  let win=null;try{win=window.open('','_blank');if(win)win.document.write('<p style="font-family:Tahoma;text-align:center;margin-top:40px" dir="rtl">در حال ساخت PDF...</p>')}catch(e){}
+  if(!window.html2canvas||!window.jspdf){if(win)win.close();return window.print()}
+  try{
+    $('cap').classList.add('mono');let c;try{c=await snap()}finally{$('cap').classList.remove('mono')}
+    const {jsPDF}=window.jspdf;
+    const w=190,h=c.height*w/c.width;
+    const doc=new jsPDF({unit:'mm',format:h>277?[210,h+20]:'a4'});
+    doc.addImage(c.toDataURL('image/jpeg',0.95),'JPEG',10,10,w,h);
+    doc.setProperties({title:fname('pdf').replace(/\.pdf$/,'')});
+    const blob=doc.output('blob');
+    if(win){win.location.href=URL.createObjectURL(blob)}else{dl(blob,fname('pdf'))}
+  }catch(e){if(win)win.close();window.print()}
+}
+window.addEventListener('beforeprint',()=>$('cap').classList.add('mono'));window.addEventListener('afterprint',()=>$('cap').classList.remove('mono'));
+for(let i=0;i<5;i++)addRow();
+icalc();
+
+
+function pmSync(){$("pm_t").checked=!manualPrice;$("pm_m").checked=manualPrice}
+$("pm_t").addEventListener("change",()=>{manualPrice=false;icalc();pmSync()});
+$("pm_m").addEventListener("change",()=>{manualPrice=true;icalc();pmSync();$("ppm").focus()});
+$("ppm").addEventListener("input",pmSync);
+$("totov").addEventListener("input",()=>{const v=num("totov");$("totov").value=v?fmt(v):"";icalc()});
+if(D.tariff&&D.tariff.length==4)D.tariff.forEach((v,i)=>TIERS[i]=v);
+[0,1,2,3].forEach(i=>{$("tf"+i).value=TIERS[i];$("tf"+i).addEventListener("change",()=>{TIERS[i]=num("tf"+i)||TIERS[i];$("tf"+i).value=TIERS[i];D.tariff=TIERS.slice();save();icalc()})});
+icalc();pmSync();renderInvList();invBanner();
+const go=p=>document.querySelector("[data-p="+p+"]").click();
+const plCol=v=>v>=0?"#16a34a":"#dc2626";
+function ordUse(o){const fp=+$("fp").value||1,cw=+$("cw").value||0,cp=+$("cp").value||0,h=+o.h||0,n=+o.n||0,ratio=o.px>0?o.px/fp:h/100;return{film:h*n/100,white:cw*ratio*n/1000,powder:cp*ratio*n/1000}}
+const ordCost=o=>o.calc&&o.calc.cost?o.calc.cost:wrCost(ordUse(o));
+function ordRev(o){return D.log.filter(x=>x.k=="inv"&&(x.ord||[]).includes(o.no)).reduce((a,x)=>{const os=(x.ord||[]).map(no=>D.orders.find(v=>v.no==no)).filter(Boolean),tm=os.reduce((t,v)=>t+(+v.h||0)*(+v.n||0)/100,0)||1,mine=(+o.h||0)*(+o.n||0)/100;return a+(x.total||0)*(os.length>1?mine/tm:1)},0)}
+const ordWaste=o=>D.defects.filter(d=>d.ord==o.no).reduce((a,d)=>a+(d.use.cost||0),0);
+function wrOver(r){const w=r.set||D.wset,P=r.rates||{cw:+$("cw").value||0,fp:+$("fp").value||1,cp:+$("cp").value||0},k=r.rows.filter(x=>+x.h&&+x.n).length;if(!k)return 0;const cm=(+w.test||0)+(+w.gap||0)*k,ratio=(+w.cov||0)/100*(+w.test||0)/100;return wrCost({film:cm/100,white:P.cw*ratio/1000,powder:P.cp*ratio/1000})}
+function plCompute(v,y,m){const pre=v=="a"?"":v=="y"?y+"/":y+"/"+String(m).padStart(2,"0")+"/",inP=k=>!pre||nk(k).startsWith(pre);
+ const rows=D.orders.filter(o=>inP(jkey(o.ts))).sort((a,b)=>a.no-b.no).map(o=>{const rev=ordRev(o),cost=ordCost(o),waste=ordWaste(o);return{o,rev,cost,waste,bill:rev>0,profit:rev-cost-waste}});
+ const B=rows.filter(r=>r.bill),sum=(L,k)=>L.reduce((a,r)=>a+r[k],0),gw=D.defects.filter(d=>!d.ord&&inP(d.date)).reduce((a,d)=>a+(d.use.cost||0),0),ov=D.wreps.filter(r=>inP(r.date)).reduce((a,r)=>a+wrOver(r),0);
+ const rev=sum(B,"rev"),cost=sum(B,"cost"),waste=sum(B,"waste");return{rows,rev,cost,waste,gw,ov,profit:rev-cost-waste-gw-ov,unCost:sum(rows.filter(r=>!r.bill),"cost")}}
+$("pl_m").innerHTML=MON.map((n,i)=>`<option value="${i+1}">${n}</option>`).join("");{const k=jkey(Date.now());$("pl_y").value=k.slice(0,4);$("pl_m").value=+k.slice(5,7)}
+["pl_v","pl_y","pl_m"].forEach(i=>$(i).addEventListener("input",()=>renderPL()));
+function renderPL(){const v=$("pl_v").value,y=nd($("pl_y").value),m=+$("pl_m").value;$("pl_m").disabled=v!="m";$("pl_y").disabled=v=="a";
+ const P=plCompute(v,y,m),title=v=="a"?"همه زمان‌ها":v=="y"?"سال "+y:MON[m-1]+" "+y;
+ const card=(l,x,c)=>`<div class="sc" style="min-width:150px"><div style="font-size:12px;color:#64748b">${l}</div><div class="v" style="color:${c||"#1d2438"};font-size:17px">${x}</div></div>`;
+ const byC={};P.rows.filter(r=>r.bill).forEach(r=>{const k=r.o.cust||"بدون مشتری";(byC[k]=byC[k]||{rev:0,cost:0,waste:0})["rev"]+=r.rev;byC[k].cost+=r.cost;byC[k].waste+=r.waste});
+ const tr=r=>`<tr${r.bill?"":' style="color:#94a3b8"'}><td>${r.o.no}</td><td>${r.o.cust||"-"}</td><td>${esc(r.o.title||"-")}</td><td>${r.bill?fa(r.rev):"بدون فاکتور"}</td><td>${fa(r.cost)}</td><td>${fa(r.waste)}</td><td style="color:${r.bill?plCol(r.profit):"#94a3b8"};font-weight:bold">${r.bill?fa(r.profit):"—"}</td><td>${r.bill&&r.rev?fd(r.profit/r.rev*100,1)+"٪":"-"}</td></tr>`;
+ $("plr").innerHTML=`<h2>💹 سود و زیان — ${title}</h2><div class="stk" style="margin-bottom:12px">${card("درآمد (فاکتورها)",fa(P.rev)+" ت")}${card("هزینه مواد سفارش‌ها",fa(P.cost)+" ت")}${card("ضایعات سفارش‌ها و عمومی",fa(P.waste+P.gw)+" ت","#dc2626")}${card("تست و فاصله روزانه",fa(P.ov)+" ت")}${card(P.profit>=0?"✅ سود":"❌ زیان",fa(Math.abs(P.profit))+" ت",plCol(P.profit))}${card("حاشیه سود",P.rev?fd(P.profit/P.rev*100,1)+"٪":"-",plCol(P.profit))}</div>
+ <p style="font-size:12px;color:#64748b">سود = درآمد − هزینه مواد − ضایعات − تست و فاصله. هزینه سفارش‌های بدون فاکتور (${fa(P.unCost)} تومان) در سود حساب نشده است. هزینه‌ها بر اساس قیمت مواد و نرخ دلار فعلی یا محاسبه ذخیره‌شده سفارش تخمین زده می‌شود.</p>
+ <h3 style="color:#6d28d9">📋 به تفکیک سفارش</h3><table class="lst" style="width:100%;border-collapse:collapse"><thead><tr><th>سفارش</th><th>مشتری</th><th>عنوان</th><th>درآمد</th><th>هزینه مواد</th><th>ضایعات</th><th>سود / زیان</th><th>حاشیه</th></tr></thead><tbody>${P.rows.map(tr).join("")||'<tr><td colspan="8">سفارشی در این بازه نیست</td></tr>'}</tbody></table>
+ <h3 style="color:#6d28d9">👥 به تفکیک مشتری</h3><table class="lst" style="width:100%;border-collapse:collapse"><thead><tr><th>مشتری</th><th>درآمد</th><th>هزینه مواد</th><th>ضایعات</th><th>سود / زیان</th></tr></thead><tbody>${Object.keys(byC).map(k=>{const x=byC[k],p=x.rev-x.cost-x.waste;return `<tr><td>${esc(k)}</td><td>${fa(x.rev)}</td><td>${fa(x.cost)}</td><td>${fa(x.waste)}</td><td style="color:${plCol(p)};font-weight:bold">${fa(p)}</td></tr>`}).join("")||'<tr><td colspan="5">فاکتوری در این بازه نیست</td></tr>'}</tbody></table>`}
+function renderHome(){const today=jkey(Date.now()),O=D.orders,invd=no=>D.log.some(x=>x.k=="inv"&&(x.ord||[]).includes(no));
+ const aw=O.filter(o=>o.status=="w"),okk=O.filter(o=>o.status=="ok"),bad=O.filter(o=>o.status=="bad"),noInv=O.filter(o=>o.status=="pr"&&!invd(o.no)),T=ordTot(),pend=D.reqs.filter(r=>r.status!="done"),redo=D.defects.filter(d=>d.redo&&!d.reprint),
+ tp=O.filter(o=>isPr(o)&&(o.pdate||jkey(o.ts))==today),regd=D.wreps.some(r=>r.date==today),P=plCompute("m",today.slice(0,4),+today.slice(5,7)),neg=ALLM.filter(c=>(D.inv[c]||0)<0),open=O.filter(o=>!isPr(o));
+ const td=[];const add=(t,p,l,f)=>td.push({t,p,l,f});
+ if(aw.length)add("📝 "+fd(aw.length,0)+" سفارش منتظر تایید مشتری","p8","ثبت سفارش");
+ if(okk.length)add("🖨️ "+fd(okk.length,0)+" سفارش تاییدشده آماده چاپ","p8","ثبت سفارش");
+ if(bad.length||redo.length)add("⚠️ "+fd(Math.max(bad.length,redo.length),0)+" سفارش نیاز به چاپ مجدد دارد","p5","ضایعات");
+ if(T.short>1e-9)add("📦 موجودی رول کافی نیست؛ کمبود "+fd(T.short,2)+" متر (≈ "+fd(Math.ceil(T.short/T.rl),0)+" رول)","p3","خرید مواد");
+ if(noInv.length)add("🧾 "+fd(noInv.length,0)+" سفارش چاپ‌شده هنوز فاکتور ندارد","p4","فاکتور");
+ if(pend.length)add("🛒 "+fd(pend.length,0)+" درخواست خرید منتظر خرید","p3","خرید مواد");
+ if(tp.length&&!regd)add("📅 گزارش کار امروز ثبت نشده ("+fd(tp.length,0)+" سفارش چاپ‌شده)","p5","گزارش روزانه");
+ if(neg.length)add("📦 موجودی منفی: "+neg.map(c=>MN[c]).join("، "),"p2","انبار");
+ if(D.usdDate!=today)add("💵 نرخ دلار امروز ثبت نشده","","ثبت نرخ",()=>{$("usd").focus()});
+ if(!AB.lastAt||Date.now()-AB.lastAt>864e5)add("💾 پشتیبان‌گیری در ۲۴ ساعت گذشته انجام نشده","p11","ذخیره");
+ window._htd=td;
+ const card=(l,x,c,p)=>`<div class="hk" onclick="go('${p||"p12"}')"><div style="font-size:12px;color:#64748b">${l}</div><div class="v" style="color:${c||"#1d2438"}">${x}</div></div>`;
+ const act=(t,f)=>`<button class="btn" style="padding:10px 14px;font-size:13px" onclick="${f}">${t}</button>`;
+ $("hm").innerHTML=`<div class="card"><h2>🏠 صفحه اصلی — ${new Date().toLocaleDateString("fa-IR-u-ca-persian",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}</h2>
+ <div style="display:flex;gap:8px;flex-wrap:wrap">${act("➕ ثبت سفارش","go('p8');newOrder()")}${act("📚 کتابخانه طرح","go('p13')")}${act("🧮 محاسبه قیمت","go('p1')")}${act("🧾 فاکتور جدید","go('p4');invNew()")}${act("📅 گزارش کار امروز","$('r_d').value=jkey(Date.now());wrLoad();go('p5')")}${act("🛒 درخواست خرید","go('p3')")}</div></div>
+ <div class="stk" style="margin-bottom:16px">${card("سفارش‌های باز",fd(open.length,0),"","p8")}${card("منتظر تایید",fd(aw.length,0),aw.length?"#f59e0b":"","p8")}${card("چاپ‌شده امروز",fd(tp.length,0),"#16a34a","p5")}${card("متراژ سفارش‌های باز",fd(T.open,2)+" متر","","p8")}${card("موجودی رول",fd(T.stock,2)+" متر",T.short>1e-9?"#dc2626":"#16a34a","p2")}${card("فروش این ماه",fa(P.rev)+" ت","","p14")}${card(P.profit>=0?"سود این ماه":"زیان این ماه",fa(Math.abs(P.profit))+" ت",plCol(P.profit),"p14")}</div>
+ <div class="grid"><div class="card"><h2>📌 کارهای باقی‌مانده</h2>${td.map((x,i)=>`<div class="td"><span>${x.t}</span><button class="btn" onclick="${x.f?"_htd["+i+"].f()":"go('"+x.p+"')"}">${x.l}</button></div>`).join("")||'<p style="color:#16a34a">🎉 کار باقی‌مانده‌ای نیست. می‌توانید استراحت کنید.</p>'}</div>
+ <div class="card"><h2>📦 موجودی انبار</h2><table class="lst" style="width:100%;border-collapse:collapse"><tbody>${ALLM.map(c=>`<tr><td>${MN[c]}</td><td style="color:${(D.inv[c]||0)<0?"#dc2626":"inherit"};font-weight:bold">${fd(D.inv[c]||0,2)} ${unit[c]}</td><td style="font-size:11px;color:#64748b">${(D.invDate&&D.invDate[c])||""}</td></tr>`).join("")}</tbody></table></div></div>
+ <div class="card"><h2>🕘 آخرین سفارش‌ها</h2><table class="lst" style="width:100%;border-collapse:collapse"><thead><tr><th>شماره</th><th>مشتری</th><th>عنوان</th><th>متراژ</th><th>وضعیت</th></tr></thead><tbody>${O.slice(0,6).map(o=>`<tr><td>${o.no}</td><td>${o.cust||"-"}</td><td>${esc(o.title||"-")}</td><td>${fd(ordM(o),2)}</td><td>${ST[o.status]}</td></tr>`).join("")||'<tr><td colspan="5">هنوز سفارشی ثبت نشده</td></tr>'}</tbody></table></div>`}
+let LBc="",LBV=false,LBsel=new Set(),LBdir=null,LBvl=[],LBvi=0;
+const custOpts=sel=>'<option value="">— بدون مشتری —</option>'+D.cust.map(c=>`<option value="${esc(c.code)}"${c.code==sel?" selected":""}>${esc(c.code)} - ${esc(c.name)}</option>`).join("");
+const libSize=x=>((+x.w||+x.h)?[(+x.w?fd(+x.w,1):""),(+x.h?fd(+x.h,1):"")].filter(Boolean).join(" × ")+" سانتی‌متر":"");
+const catName=id=>{const c=D.libCats.find(v=>v.id==id);return c?c.name:""};
+function libNewCode(){let c;do{c="D-"+String(D.libN++).padStart(4,"0")}while(D.lib.some(x=>x.code==c));return c}
+function libFix(){let ch=false;D.lib.forEach(x=>{if(!x.code){x.code=libNewCode();ch=true}["cat","tags","w","path","note"].forEach(k=>{if(x[k]==null){x[k]="";ch=true}})});if(ch)save()}
+const dataBlob=u=>{const [h,b]=u.split(","),m=(h.match(/:(.*?);/)||[,"image/jpeg"])[1],bin=atob(b),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:m})};
+const safeName=t=>String(t).replace(/[\\/:*?"<>|]+/g,"_").trim();
+$("lb_up").addEventListener("change",async e=>{const fs=[...e.target.files];if(!fs.length)return;let i=0;
+ for(const f of fs){const img=await readImg(f),id=Date.now()+i++,ky="L"+id;let ok=false;try{await idbx("files","readwrite",s=>s.put(f,ky));ok=true}catch(x){}
+  D.lib.unshift({id,ik:ky,ts:id,code:libNewCode(),name:f.name.replace(/\.[^.]+$/,""),cat:(LBc&&LBc!=="-")?LBc:"",tags:"",cs:$("lb_ucs").value||"",h:"",w:"",px:"",note:"",path:"",img,fname:ok?f.name:"",uses:0})}
+ e.target.value="";save();renderLib();renderHome()});
+["lb_q","lb_fc"].forEach(i=>$(i).addEventListener("input",renderLib));
+function libList(){const q=nd($("lb_q").value).toLowerCase(),fc=$("lb_fc").value;return D.lib.filter(x=>(LBc===""||(LBc==="-"?!x.cat:x.cat==LBc))&&(!fc||x.cs==fc)&&(!q||(x.name+" "+x.code+" "+x.tags).toLowerCase().includes(q)))}
+function renderLib(){libFix();const L0=libList(),L=LBV&&LBsel.size?L0.filter(x=>LBsel.has(x.id)):L0,cat=c=>D.lib.filter(x=>x.cat==c).length;
+ $("lb_chips").innerHTML=`<span class="chip${LBc===""?" on":""}" onclick="libCat('')">همه (${fd(D.lib.length,0)})</span>`+D.libCats.map(c=>`<span class="chip${LBc==c.id?" on":""}" onclick="libCat('${c.id}')">${esc(c.name)} (${fd(cat(c.id),0)})</span>`).join("")+`<span class="chip${LBc==="-"?" on":""}" onclick="libCat('-')">بدون دسته (${fd(D.lib.filter(x=>!x.cat).length,0)})</span><span class="lib-admin noprint"><button class="btn" onclick="libCatAdd()">➕ دسته جدید</button>${LBc&&LBc!=="-"?` <button class="btn" onclick="libCatRen()">✏️ تغییر نام دسته</button> <button class="btn dl" onclick="libCatDel()">🗑 حذف دسته</button>`:""}</span>`;
+ $("lb_n").textContent=fd(L.length,0)+" طرح"+(LBV&&LBsel.size?" (انتخاب‌شده)":"");$("lb_exit").style.display=LBV?"inline-block":"none";
+ LBvl=L.map(x=>x.id);
+ $("lb_g").innerHTML=L.map((x,i)=>{const im=x.img?`<img src="${x.img}" onclick="${LBV?"libView("+i+")":"libOpen("+x.id+")"}">`:`<div onclick="${LBV?"":"libOpen("+x.id+")"}" style="height:120px;display:flex;align-items:center;justify-content:center;color:#94a3b8;background:#f8fafc;border-radius:10px;cursor:pointer">${esc(x.fname||"بدون پیش‌نمایش")}</div>`;
+  return LBV?`<div class="lc">${im}<div class="lt"><span class="lcode">${esc(x.code)}</span> <b>${esc(x.name)}</b></div><div class="lm">${x.cat?esc(catName(x.cat))+" · ":""}${libSize(x)}</div></div>`:
+  `<div class="lc">${im}<div class="lt"><span class="lcode">${esc(x.code)}</span> <b>${esc(x.name)}</b></div><div class="lm">${x.cat?"📁 "+esc(catName(x.cat)):"بدون دسته"} ${libSize(x)?"· "+libSize(x):""}${x.px?" · "+fd(x.px,0)+" پیکسل":""}</div>${x.tags?`<div class="lm">🏷️ ${esc(x.tags)}</div>`:""}${x.cs?`<div class="lm">👤 ${esc(cname(x.cs))}${x.ord?" · سفارش "+x.ord:""}</div>`:""}<div class="la"><label><input type="checkbox" style="width:auto"${LBsel.has(x.id)?" checked":""} onchange="libSel(${x.id},this.checked)"> انتخاب</label><button class="btn" onclick="libOpen(${x.id})">✏️</button><button class="btn gr" onclick="libUse(${x.id})">➕ سفارش</button><button class="btn" style="background:#8b5cf6" onclick="libDl(${x.id})">⬇️</button></div></div>`}).join("")||'<p style="color:#64748b">طرحی پیدا نشد؛ از «افزودن طرح» عکس اضافه کنید.</p>';
+ try{libDirShow()}catch(e){}}
+function libCat(c){LBc=c;renderLib()}
+function libCatAdd(){const n=(prompt("نام دسته جدید:")||"").trim();if(!n)return;if(D.libCats.some(c=>c.name==n)){alert("این دسته قبلاً هست.");return}D.libCats.push({id:Date.now(),name:n});save();renderLib()}
+function libCatRen(){const c=D.libCats.find(v=>v.id==LBc);if(!c)return;const n=(prompt("نام جدید دسته:",c.name)||"").trim();if(!n)return;c.name=n;save();renderLib()}
+function libCatDel(){const c=D.libCats.find(v=>v.id==LBc);if(!c||!confirm("دسته «"+c.name+"» حذف شود؟ طرح‌های آن بدون دسته می‌شوند."))return;D.lib.forEach(x=>{if(x.cat==c.id)x.cat=""});D.libCats=D.libCats.filter(v=>v.id!=c.id);LBc="";save();renderLib()}
+function libSel(id,on){on?LBsel.add(id):LBsel.delete(id)}
+function libOpen(id){const x=D.lib.find(v=>v.id==id);if(!x)return;const f=(l,i,v,t)=>`<div class="f"><label>${l}</label><input id="${i}" ${t||'type="text"'} value="${esc(v)}" style="width:230px"></div>`;
+ $("lb_md").innerHTML=`<div class="card" style="max-width:780px;margin:24px auto"><h2>✏️ مشخصات طرح <span class="lcode">${esc(x.code)}</span></h2><div class="grid"><div>${x.img?`<img src="${x.img}" style="width:100%;border-radius:10px;background:#f8fafc">`:'<div style="padding:40px;text-align:center;color:#94a3b8">بدون پیش‌نمایش</div>'}<p style="font-size:12px;color:#64748b">فایل اصلی: ${esc(x.fname||"—")}</p><div class="f"><label>جایگزینی فایل</label><input id="lm_file" type="file" accept="image/*,.psd,.tif,.tiff,.pdf" style="width:200px" onchange="libReplace(${x.id},this)"></div></div><div>
+ ${f("کد طرح","lm_code",x.code)}${f("عنوان","lm_name",x.name)}<div class="f"><label>دسته</label><select id="lm_cat" class="sel" style="width:230px" onchange="libModalCat(this)"><option value="">— بدون دسته —</option>${D.libCats.map(c=>`<option value="${c.id}"${c.id==x.cat?" selected":""}>${esc(c.name)}</option>`).join("")}<option value="__new">➕ دسته جدید…</option></select></div>
+ ${f("برچسب‌ها","lm_tags",x.tags)}${f("عرض (سانتی‌متر)","lm_w",x.w,'type="number"')}${f("ارتفاع (سانتی‌متر)","lm_h",x.h,'type="number"')}${f("پیکسل","lm_px",x.px,'type="number"')}
+ <div class="f"><label>مشتری</label><select id="lm_cs" class="sel" style="width:230px">${custOpts(x.cs)}</select></div>
+ <div class="f"><label>مسیر فایل اصلی<small>برای یادآوری مسیر روی سیستم</small></label><input id="lm_path" type="text" value="${esc(x.path)}" style="width:190px;direction:ltr"><button class="btn" onclick="navigator.clipboard&&navigator.clipboard.writeText($('lm_path').value)">📋</button></div>
+ <div class="f"><label>توضیحات<small>در نمایش مشتری هم دیده می‌شود</small></label><textarea id="lm_note" style="width:230px;height:70px;border:1px solid var(--bd);border-radius:8px;padding:6px;font-family:inherit">${esc(x.note)}</textarea></div></div></div>
+ <p style="margin-top:10px"><button class="btn gr" onclick="libSave(${x.id})">✅ ذخیره</button> <button class="btn" style="background:#8b5cf6" onclick="libDl(${x.id})">⬇️ دانلود</button> <button class="btn" style="background:#0ea5e9" onclick="libUse(${x.id});$('lb_md').style.display='none'">➕ استفاده در سفارش</button> <button class="btn dl" onclick="libDel(${x.id})">🗑 حذف</button> <button class="btn" style="background:#64748b" onclick="$('lb_md').style.display='none'">✖ بستن</button></p></div>`;$("lb_md").style.display="block"}
+function libModalCat(sel){if(sel.value!="__new")return;const n=(prompt("نام دسته جدید:")||"").trim();if(!n){sel.value="";return}let c=D.libCats.find(v=>v.name==n);if(!c){c={id:Date.now(),name:n};D.libCats.push(c);save()}const o=document.createElement("option");o.value=c.id;o.textContent=c.name;sel.insertBefore(o,sel.lastElementChild);sel.value=c.id}
+function libSave(id){const x=D.lib.find(v=>v.id==id),code=$("lm_code").value.trim();if(!code){alert("کد طرح را بنویسید.");return}if(D.lib.some(v=>v.id!=id&&v.code==code)){alert("این کد قبلاً برای طرح دیگری ثبت شده است.");return}
+ Object.assign(x,{code,name:$("lm_name").value.trim()||x.name,cat:$("lm_cat").value,tags:$("lm_tags").value,w:parseFloat($("lm_w").value)||"",h:parseFloat($("lm_h").value)||"",px:parseFloat($("lm_px").value)||"",cs:$("lm_cs").value,path:$("lm_path").value,note:$("lm_note").value});save();$("lb_md").style.display="none";renderLib()}
+async function libReplace(id,inp){const f=inp.files[0],x=D.lib.find(v=>v.id==id);if(!f||!x)return;const img=await readImg(f);try{await idbx("files","readwrite",s=>s.put(f,x.ik));x.fname=f.name}catch(e){}if(img)x.img=img;save();renderLib();libOpen(id)}
+function libDel(id){const x=D.lib.find(v=>v.id==id);if(!x||!confirm("طرح «"+x.name+"» از کتابخانه حذف شود؟"))return;try{idbx("files","readwrite",s=>s.delete(x.ik))}catch(e){}if(x.ord){const od=D.orders.find(v=>v.no==x.ord);if(od)od.libSkip=true}D.lib=D.lib.filter(v=>v.id!=id);LBsel.delete(id);save();$("lb_md").style.display="none";renderLib();renderHome()}
+function libUse(id){const x=D.lib.find(y=>y.id==id);if(!x)return;ODR.push({title:x.name,h:x.h||"",n:"",px:x.px||"",img:x.img||""});x.uses=(x.uses||0)+1;if(x.cs&&!$("o_cs").value)$("o_cs").value=x.cs;save();renderDr();renderOA();go("p8");alert("طرح به لیست طرح‌های ثبت سفارش اضافه شد. تعداد کپی را بنویسید و «ثبت سفارش» را بزنید.")}
+function libFromOrder(id){const o=D.orders.find(x=>x.id==id);if(!o)return;if(!o.img){alert("این سفارش عکس چیدمان ندارد.");return}delete o.libSkip;const ch=libSyncOrder(o);save();renderLib();alert(ch?"طرح به کتابخانه (دسته سفارشات) اضافه شد.":"این طرح قبلاً در کتابخانه هست.")}
+async function libPickDir(){if(!window.showDirectoryPicker){alert("این مرورگر انتخاب پوشه را پشتیبانی نمی‌کند (Chrome یا Edge). دانلود به پوشه پیش‌فرض مرورگر انجام می‌شود.");return}try{LBdir=await showDirectoryPicker({mode:"readwrite"});await idbx("kv","readwrite",s=>s.put(LBdir,"libdir"))}catch(e){}libDirShow()}
+function libDirShow(){const e=$("lb_dir");if(e)e.textContent=LBdir?"پوشه دانلود: «"+LBdir.name+"»":(window.showDirectoryPicker?"پوشه دانلود انتخاب نشده (پوشه پیش‌فرض مرورگر)":"")}
+try{idbx("kv","readonly",s=>s.get("libdir")).then(h=>{LBdir=h||null;libDirShow()}).catch(()=>{})}catch(e){}
+async function libDl(id){const x=D.lib.find(v=>v.id==id);if(!x)return;let blob=null,ext="jpg";try{blob=await idbx("files","readonly",s=>s.get(x.ik))}catch(e){}
+ if(blob)ext=(x.fname||"").includes(".")?x.fname.split(".").pop():(blob.type.split("/")[1]||"png");else if(x.img)blob=dataBlob(x.img);else{alert("برای این طرح فایلی نیست.");return}
+ const name=safeName(x.code+"-"+x.name)+"."+ext;
+ if(LBdir){try{let p=await LBdir.queryPermission({mode:"readwrite"});if(p!="granted")p=await LBdir.requestPermission({mode:"readwrite"});if(p=="granted"){const fh=await LBdir.getFileHandle(name,{create:true}),w=await fh.createWritable();await w.write(blob);await w.close();alert("ذخیره شد: پوشه «"+LBdir.name+"» ← "+name);return}}catch(e){}}
+ dl(blob,name)}
+function libCust(on){LBV=on;document.body.classList.toggle("cvm",on);renderLib();window.scrollTo(0,0);try{if(on&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});else if(!on&&document.fullscreenElement)document.exitFullscreen()}catch(e){}}
+function libView(i){LBvi=i;const x=D.lib.find(v=>v.id==LBvl[i]);if(!x)return;
+ $("lb_vw").innerHTML=`<div style="width:100%;display:flex;justify-content:space-between"><button class="btn" onclick="libViewClose()">✖ بستن</button><span>${fd(i+1,0)} / ${fd(LBvl.length,0)}</span></div><div style="display:flex;align-items:center;gap:14px;flex:1"><button class="btn" style="font-size:22px" onclick="libViewGo(1)">◀</button>${x.img?`<img src="${x.img}">`:'<div style="padding:60px">بدون پیش‌نمایش</div>'}<button class="btn" style="font-size:22px" onclick="libViewGo(-1)">▶</button></div>
+ <div style="text-align:center;font-size:16px;margin-top:8px"><span class="lcode">${esc(x.code)}</span> <b>${esc(x.name)}</b><div style="font-size:13px;opacity:.85">${x.cat?esc(catName(x.cat))+" · ":""}${libSize(x)}${x.note?" · "+esc(x.note):""}</div></div>`;$("lb_vw").style.display="flex"}
+function libViewGo(d){if(!LBvl.length)return;libView((LBvi+d+LBvl.length)%LBvl.length)}
+function libViewClose(){$("lb_vw").style.display="none"}
+document.addEventListener("keydown",e=>{if($("lb_vw").style.display=="flex"){if(e.key=="ArrowLeft")libViewGo(1);else if(e.key=="ArrowRight")libViewGo(-1);else if(e.key=="Escape")libViewClose()}else if(e.key=="Escape"&&LBV)libCust(false)});
+function libCatalog(){const L0=libList(),L=LBsel.size?L0.filter(x=>LBsel.has(x.id)):L0;if(!L.length){alert("طرحی برای کاتالوگ نیست.");return}
+ const d=document.createElement("div");d.className="pe-tmp";d.innerHTML=`<div style="border-bottom:3px solid #000;padding-bottom:8px;margin-bottom:12px"><b style="font-size:20px">📚 کاتالوگ طرح‌ها</b><br>تاریخ: ${new Date().toLocaleDateString("fa-IR-u-ca-persian",{year:"numeric",month:"long",day:"numeric"})} — ${fd(L.length,0)} طرح</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">${L.map(x=>`<div style="border:1px solid #000;padding:8px;text-align:center;break-inside:avoid">${x.img?`<img src="${x.img}" style="max-width:100%;max-height:210px">`:""}<div style="margin-top:6px"><b>${esc(x.code)}</b> — ${esc(x.name)}</div><div style="font-size:11px">${x.cat?esc(catName(x.cat))+" · ":""}${libSize(x)}</div></div>`).join("")}</div>`;document.body.appendChild(d);printEl(d)}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.p=="p12")renderHome();if(b.dataset.p=="p13")renderLib();if(b.dataset.p=="p14")renderPL()}));
+fillOcs();renderLib();renderPL();renderHome();
+</script>
+<script>
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
